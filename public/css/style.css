@@ -1,0 +1,126 @@
+:root {
+  --primary: #2563eb;
+  --bg-light: #f8fafc;
+  --border: #e2e8f0;
+  --text: #0f172a;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text);
+}
+
+.cs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.cs-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.cs-header-brand .logo {
+  background: var(--primary);
+  color: white;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+}
+
+.cs-header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.cs-nav-item {
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.cs-nav-item.active, .cs-nav-item:hover {
+  color: var(--primary);
+  background: #eff6ff;
+}
+
+.cs-main {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Schedule Grid */
+.cs-grid-wrap {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.cs-grid-header-row, .cs-resource-row {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.cs-grid-label-col, .cs-resource-label {
+  width: 220px;
+  min-width: 220px;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-right: 1px solid var(--border);
+}
+
+.cs-grid-hours {
+  display: flex;
+}
+
+.cs-hour-tick {
+  width: 80px;
+  min-width: 80px;
+  font-size: 0.75rem;
+  color: #64748b;
+  padding: 0.5rem 0;
+  text-align: center;
+  border-right: 1px dashed var(--border);
+}
+
+.cs-track {
+  position: relative;
+  height: 60px;
+  background-size: 80px 100%;
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px);
+}
+
+.cs-block {
+  position: absolute;
+  top: 6px;
+  height: 48px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: white;
+  overflow: hidden;
+}
+
+.cs-block.approved { background: #10b981; }
+.cs-block.pending { background: #f59e0b; }
+
+.cs-alert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+.cs-alert-success { background: #d1fae5; color: #065f46; }
+.cs-alert-danger { background: #fee2e2; color: #991b1b; }
