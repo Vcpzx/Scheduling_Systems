@@ -25,6 +25,9 @@
     @if($errors->has('auth'))
       <div class="error">{{ $errors->first('auth') }}</div>
     @endif
+    @if(session('success'))
+      <div style="padding: .75rem; background: #dcfce7; color: #166534; border-radius: 6px; font-size: .85rem; margin-bottom: 1rem;">{{ session('success') }}</div>
+    @endif
 
     <form method="POST" action="{{ route('login') }}">
       @csrf

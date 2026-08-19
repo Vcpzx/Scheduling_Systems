@@ -16,7 +16,7 @@ return new class extends Migration
     $table->string('user_id')->unique();
     $table->string('name');
     $table->string('password');
-    $table->enum('role', ['student', 'teacher', 'secretary']);
+    $table->enum('role', ['student', 'teacher', 'admin']);
     $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
     $table->string('decided_by')->nullable();
     $table->timestamp('decided_at')->nullable();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BookingRequest;
 use App\Models\Resource;
+use App\Models\SystemNotification;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -21,8 +22,12 @@ class ScheduleController extends Controller
 
         $bookings = BookingRequest::with(['user', 'resource'])
             ->where('date', $date)
+            ->when($request->user()->isStudent(), fn ($query) => $query->where('status', 'approved'))
             ->get();
 
-        return view('schedule.index', compact('date', 'type', 'resources', 'bookings'));
+        $myBookings = $request->user()->bookingRequests()->with('resource')->latest()->get();
+        $notifications = SystemNotification::latest()->take(6)->get();
+
+        return view('schedule.index', compact('date', 'type', 'resources', 'bookings', 'myBookings', 'notifications'));
     }
 }

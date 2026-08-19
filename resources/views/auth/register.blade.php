@@ -20,7 +20,7 @@
 <body>
   <div class="card">
     <h2>Create Account</h2>
-    <p>Sign up for a new account</p>
+    <p>Request access to the campus scheduling system</p>
 
     @if($errors->any())
       <div class="error">{{ $errors->first() }}</div>
@@ -43,8 +43,6 @@
         <select name="role" required>
           <option value="student">Student</option>
           <option value="teacher">Teacher</option>
-          <option value="secretary">Secretary</option>
-          <option value="admin">Admin</option>
         </select>
       </div>
 
@@ -53,7 +51,7 @@
         <input type="password" name="password" required>
       </div>
 
-      <button type="submit">Register & Sign In</button>
+      <button type="submit">Submit Registration</button>
     </form>
 
     <p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #64748b;">

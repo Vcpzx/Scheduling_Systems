@@ -1,67 +1,21 @@
 @extends('layouts.app')
 
+@section('title', 'Schedule | Campus Scheduler')
+
 @section('content')
-<div class="cs-page-head">
-  <h2>Visual Schedule Grid</h2>
-</div>
-
-<form method="GET" action="{{ route('schedule.index') }}" class="cs-controls">
-  <input type="date" name="date" value="{{ $date ?? date('Y-m-d') }}" onchange="this.form.submit()">
-  
-  <div class="cs-filter-group">
-    @foreach(['all' => 'All', 'room' => 'Rooms', 'lab' => 'Laboratories', 'facility' => 'Facilities', 'equipment' => 'Equipment'] as $key => $label)
-      <button type="submit" name="type" value="{{ $key }}" class="cs-filter-btn {{ ($type ?? 'all') === $key ? 'active' : '' }}">
-        {{ $label }}
-      </button>
-    @endforeach
-  </div>
-</form>
-
-<div class="cs-grid-wrap">
-  <div class="cs-grid-scroll">
-    <div class="cs-grid-inner">
-      <div class="cs-grid-header-row">
-        <div class="cs-grid-label-col">Resource</div>
-        <div class="cs-grid-hours">
-          @for($m = 420; $m <= 1260; $m += 60)
-            <div class="cs-hour-tick">{{ date('g:i A', mktime(0, $m)) }}</div>
-          @endfor
-        </div>
-      </div>
-
-      @if(isset($resources) && count($resources) > 0)
-        @foreach($resources as $resource)
-          <div class="cs-resource-row">
-            <div class="cs-resource-label">
-              <div class="name">{{ $resource->name }}</div>
-              <div class="meta">{{ $resource->location }} {{ $resource->capacity ? '· ' . $resource->capacity . ' seats' : '' }}</div>
-              <span class="cs-type-chip cs-type-{{ $resource->type }}">{{ strtoupper($resource->type) }}</span>
-            </div>
-            
-            <div class="cs-track" style="width: 1120px;">
-              @if(isset($bookings))
-                @foreach($bookings->where('resource_id', $resource->id) as $b)
-                  @php
-                    $startMin = (strtotime($b->start_time) - strtotime('07:00')) / 60;
-                    $duration = (strtotime($b->end_time) - strtotime($b->start_time)) / 60;
-                    $left = $startMin * (80 / 60);
-                    $width = max($duration * (80 / 60), 30);
-                  @endphp
-                  <div class="cs-block {{ $b->status }}" style="left: {{ $left }}px; width: {{ $width }}px;" title="{{ $b->purpose }} — {{ $b->user->name ?? 'User' }}">
-                    <div class="p">{{ $b->purpose }}</div>
-                    <div class="t">{{ date('g:i A', strtotime($b->start_time)) }} – {{ date('g:i A', strtotime($b->end_time)) }}</div>
-                  </div>
-                @endforeach
-              @endif
-            </div>
-          </div>
-        @endforeach
-      @else
-        <div style="padding: 2rem; text-align: center; color: #64748b;">
-          No resources found.
-        </div>
-      @endif
-    </div>
-  </div>
+<section class="cs-hero"><h1>{{ Auth::user()->isTeacher() ? 'Plan your next class' : 'Campus schedule' }}</h1><p>{{ Auth::user()->isTeacher() ? 'Request the spaces and equipment your teaching needs.' : 'Browse approved and pending activity across campus resources.' }}</p></section>
+<div class="cs-layout">
+  <section class="cs-panel"><h2>Visual schedule</h2>
+    <form method="GET" action="{{ route('schedule.index') }}" class="cs-controls"><input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()"><div class="cs-filter-group">@foreach(['all' => 'All', 'room' => 'Rooms', 'lab' => 'Labs', 'facility' => 'Facilities', 'equipment' => 'Equipment'] as $key => $label)<button type="submit" name="type" value="{{ $key }}" class="cs-filter-btn {{ $type === $key ? 'active' : '' }}">{{ $label }}</button>@endforeach</div></form>
+    <div class="cs-grid-wrap"><div class="cs-grid-inner"><div class="cs-grid-header-row"><div class="cs-grid-label-col">Resource</div><div class="cs-grid-hours">@for($m = 420; $m <= 1260; $m += 60)<div class="cs-hour-tick">{{ date('g:i A', mktime(0, $m)) }}</div>@endfor</div></div>
+      @forelse($resources as $resource)<div class="cs-resource-row"><div class="cs-resource-label"><div class="name">{{ $resource->name }}</div><div class="meta">{{ $resource->location }} {{ $resource->capacity ? '· '.$resource->capacity.' seats' : '' }}</div><span class="cs-type-chip">{{ strtoupper($resource->type) }}</span></div><div class="cs-track" style="width: 1120px;">@foreach($bookings->where('resource_id', $resource->id) as $booking)@php $startMin = (strtotime($booking->start_time) - strtotime('07:00')) / 60; $duration = (strtotime($booking->end_time) - strtotime($booking->start_time)) / 60; @endphp<div class="cs-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;"><div class="p">{{ $booking->purpose }}</div><div class="t">{{ date('g:i A', strtotime($booking->start_time)) }} - {{ date('g:i A', strtotime($booking->end_time)) }}</div></div>@endforeach</div></div>@empty<div class="cs-panel">No resources found.</div>@endforelse
+    </div></div>
+  </section>
+  <aside class="cs-form-grid">
+    @if(Auth::user()->isTeacher())<section class="cs-panel"><h2>New booking request</h2><form method="POST" action="{{ route('bookings.store') }}" class="cs-form-grid">@csrf<label>Resource<select name="resource_id" class="cs-select" required><option value="">Choose a resource</option>@foreach($resources as $resource)<option value="{{ $resource->id }}">{{ $resource->name }} ({{ strtoupper($resource->type) }})</option>@endforeach</select></label><label>Date<input class="cs-input" type="date" name="date" min="{{ now()->format('Y-m-d') }}" required></label><div class="cs-form-grid cs-two-col"><label>Starts<input class="cs-input" type="time" name="start_time" required></label><label>Ends<input class="cs-input" type="time" name="end_time" required></label></div><label>Purpose<textarea class="cs-textarea" name="purpose" rows="3" placeholder="e.g. Biology lecture" required></textarea></label><button class="cs-button" type="submit">Submit request</button></form></section>@endif
+    <section class="cs-panel"><h2>Notifications</h2>@forelse($notifications as $notification)<div class="cs-notice"><strong>{{ $notification->title }}</strong><span>{{ $notification->message }}</span><small>{{ $notification->created_at->diffForHumans() }}</small></div>@empty<p>No notifications yet.</p>@endforelse</section>
+    @if(Auth::user()->isTeacher())<section class="cs-panel"><h2>My requests</h2>@forelse($myBookings as $booking)<div class="cs-notice"><strong>{{ $booking->resource->name }}</strong><span>{{ $booking->date }} · {{ $booking->start_time }} - {{ $booking->end_time }}</span><small class="cs-status cs-status-{{ $booking->status }}">{{ ucfirst($booking->status) }}</small></div>@empty<p>No booking requests yet.</p>@endforelse</section>@endif
+    <section class="cs-panel"><h2>Profile</h2><form method="POST" action="{{ route('profile.update') }}" class="cs-form-grid">@csrf @method('PUT')<label>Name<input class="cs-input" name="name" value="{{ Auth::user()->name }}" required></label><label>User ID<input class="cs-input" name="user_id" value="{{ Auth::user()->user_id }}" required></label><label>New password<input class="cs-input" type="password" name="password" minlength="8"></label><label>Confirm password<input class="cs-input" type="password" name="password_confirmation" minlength="8"></label><button class="cs-button cs-button-muted" type="submit">Save profile</button></form></section>
+  </aside>
 </div>
 @endsection

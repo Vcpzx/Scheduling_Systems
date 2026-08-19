@@ -11,12 +11,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin / Secretary User
+        // Default administrator
         User::create([
             'user_id' => 'SEC-001',
             'name' => 'Registrar Office',
             'password' => Hash::make('admin123'),
-            'role' => 'secretary',
+            'role' => 'admin',
             'status' => 'approved',
         ]);
 

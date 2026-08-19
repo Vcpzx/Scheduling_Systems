@@ -21,9 +21,9 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt(array_merge($credentials, ['status' => 'approved']))) {
             $request->session()->regenerate();
-            return redirect()->intended('/');
+            return redirect()->intended(Auth::user()->isAdmin() ? route('admin.dashboard') : route('schedule.index'));
         }
 
         return back()->withErrors([
@@ -41,7 +41,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'user_id'  => 'required|unique:users,user_id',
             'name'     => 'required|string|max:255',
-            'role'     => 'required|in:student,teacher,secretary,admin',
+            'role'     => 'required|in:student,teacher',
             'password' => 'required|min:4',
         ]);
 
@@ -52,9 +52,7 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        Auth::login($user);
-
-        return redirect('/');
+        return redirect()->route('login')->with('success', 'Registration submitted. An administrator must approve your account before you can sign in.');
     }
 
     public function logout(Request $request)
