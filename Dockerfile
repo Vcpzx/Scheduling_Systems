@@ -24,11 +24,11 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Added --ignore-platform-reqs to prevent extension/platform lock errors
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
 
-CMD php artisan config:cache && php artisan route:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80
+# Run migrations and start server without pre-caching invalid local configs
+CMD php artisan config:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80
