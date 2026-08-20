@@ -33,12 +33,12 @@
       @csrf
       <div class="group">
         <label>User ID</label>
-        <input type="text" name="user_id" placeholder="e.g. SEC-001" required>
+        <input type="text" name="user_id" placeholder="Enter Your ID" required>
       </div>
 
       <div class="group">
         <label>Password</label>
-        <input type="password" name="password" required>
+        <input type="password" name="password" placeholder="Enter Your Password" required>
       </div>
 
       <button type="submit">Sign In</button>
