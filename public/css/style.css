@@ -159,3 +159,73 @@ a { color: inherit; }
 }
 .cs-alert-success { background: #d1fae5; color: #065f46; }
 .cs-alert-danger { background: #fee2e2; color: #991b1b; }
+
+/* Responsive application surface */
+html { min-width: 320px; background: var(--bg-light); }
+body { min-height: 100vh; overflow-x: hidden; font-family: "Trebuchet MS", "Segoe UI", sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #f3f7f1 100%); }
+button, input, select, textarea { font: inherit; }
+button, input, select, textarea { min-height: 2.75rem; }
+.cs-main { width: min(100%, 1400px); padding: clamp(1.25rem, 3vw, 3rem) clamp(1rem, 4vw, 4rem); }
+.cs-navbar { width: 100%; padding-inline: max(1rem, calc((100vw - 1400px) / 2 + 1rem)); backdrop-filter: blur(14px); }
+.cs-brand { flex: 0 1 auto; min-width: 0; }
+.cs-nav-links { min-width: 0; }
+.cs-nav-links a { padding: .55rem .7rem; border-radius: .5rem; }
+.cs-nav-links a:hover { background: var(--green-soft); }
+.cs-user-nav form { flex-shrink: 0; }
+.cs-hero { max-width: 760px; }
+.cs-hero h1 { line-height: 1.05; }
+.cs-layout { grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); }
+.cs-panel { min-width: 0; }
+.cs-controls input { max-width: 12rem; }
+.cs-filter-btn, .cs-button { min-height: 2.75rem; }
+.cs-button { white-space: nowrap; }
+.cs-grid-wrap { max-width: 100%; overscroll-behavior-inline: contain; }
+.cs-grid-inner { min-width: 1340px; }
+.cs-grid-label-col, .cs-resource-label { position: sticky; left: 0; z-index: 2; }
+.cs-grid-label-col { z-index: 3; }
+.cs-table { min-width: 560px; }
+.cs-table th, .cs-table td { overflow-wrap: anywhere; }
+.cs-actions form { display: inline-block; vertical-align: middle; margin: .15rem 0; }
+.cs-toast { right: max(1rem, calc((100vw - 1400px) / 2 + 1rem)); }
+
+@media (max-width: 1024px) {
+  .cs-navbar { gap: 1rem; }
+  .cs-layout { grid-template-columns: minmax(0, 1fr) 300px; }
+  .cs-panel { padding: 1rem; }
+}
+
+@media (max-width: 760px) {
+  .cs-navbar { min-height: auto; padding-block: .75rem; gap: .65rem .85rem; }
+  .cs-brand { font-size: 1rem; }
+  .cs-nav-links { order: 3; flex: 1 0 100%; gap: .35rem; overflow-x: auto; padding-bottom: .1rem; }
+  .cs-nav-links a { white-space: nowrap; }
+  .cs-user-nav { margin-left: auto; gap: .5rem; }
+  .cs-user-info { display: none; }
+  .cs-layout { grid-template-columns: 1fr; }
+  .cs-hero { margin-bottom: 1.25rem; }
+  .cs-hero h1 { font-size: clamp(1.85rem, 8vw, 2.75rem); }
+  .cs-panel h2 { font-size: 1.1rem; }
+  .cs-controls { align-items: stretch; }
+  .cs-controls input { width: 100%; max-width: none; }
+  .cs-filter-group { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs-filter-btn { width: 100%; }
+  .cs-two-col { grid-template-columns: 1fr; }
+  .cs-actions { white-space: normal; min-width: 8rem; }
+  .cs-actions form { display: block !important; margin: .25rem 0; }
+  .cs-actions .cs-button { width: 100%; }
+  .cs-toast { top: 1rem; right: 1rem; left: 1rem; max-width: none; }
+}
+
+@media (max-width: 420px) {
+  .cs-main { padding-inline: .75rem; }
+  .cs-navbar { padding-inline: .75rem; }
+  .cs-logo-badge { padding: .3rem .42rem; }
+  .cs-brand { font-size: .92rem; gap: .45rem; }
+  .cs-user-nav .cs-button { padding-inline: .65rem; }
+  .cs-panel { border-radius: .75rem; padding: .85rem; }
+  .cs-filter-group { grid-template-columns: 1fr 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
