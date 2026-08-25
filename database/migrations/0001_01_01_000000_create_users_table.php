@@ -10,20 +10,38 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('users', function (Blueprint $table) {
-    $table->id();
-    $table->string('user_id')->unique();
-    $table->string('name');
-    $table->string('password');
-    $table->enum('role', ['student', 'teacher', 'admin']);
-    $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-    $table->string('decided_by')->nullable();
-    $table->timestamp('decided_at')->nullable();
-    $table->rememberToken();
-    $table->timestamps();
-});
-}
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('user_id')->unique();
+            $table->string('name');
+            $table->string('email')->nullable()->unique();
+            $table->string('section')->nullable(); // e.g. BSIS 3A (for students)
+            $table->string('department')->nullable(); // e.g. College of Computer Studies
+            $table->string('password');
+            $table->enum('role', ['student', 'teacher', 'admin']);
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('decided_by')->nullable();
+            $table->timestamp('decided_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('user_id')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+    }
 
     /**
      * Reverse the migrations.

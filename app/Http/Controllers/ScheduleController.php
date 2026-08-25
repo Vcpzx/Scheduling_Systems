@@ -3,12 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\BookingRequest;
+use App\Models\ClassSchedule;
 use App\Models\Resource;
 use App\Models\SystemNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
+    /**
+     * Entry point: routes authenticated user to their role-specific dashboard.
+     */
+    public function home(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+        if ($user->isTeacher()) {
+            return redirect()->route('teacher.dashboard');
+        }
+        return redirect()->route('student.dashboard');
+    }
+
+    /**
+     * Campus Master Visual Schedule (accessible by all roles).
+     */
     public function index(Request $request)
     {
         $date = $request->get('date', now()->format('Y-m-d'));

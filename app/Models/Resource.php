@@ -12,4 +12,9 @@ class Resource extends Model
     {
         return $this->hasMany(BookingRequest::class);
     }
+
+    public function classSchedules()
+    {
+        return $this->hasMany(ClassSchedule::class);
+    }
 }

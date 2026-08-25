@@ -3,13 +3,246 @@
 @section('title', 'Admin Workspace | Campus Scheduler')
 
 @section('content')
-<section class="cs-hero"><h1>Admin workspace</h1><p>Keep people, spaces, and requests moving through one clear queue.</p></section>
-<div class="cs-layout">
-  <div class="cs-form-grid">
-    <section class="cs-panel"><h2>Accounts awaiting review</h2><div class="cs-table-wrap"><table class="cs-table"><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>@forelse($pendingUsers as $user)<tr><td><strong>{{ $user->name }}</strong><br><small>{{ $user->user_id }}</small></td><td>{{ ucfirst($user->role) }}</td><td><span class="cs-status cs-status-pending">Pending</span></td><td class="cs-actions"><form method="POST" action="{{ route('admin.users.decide', $user) }}" style="display:inline">@csrf @method('PATCH')<input type="hidden" name="status" value="approved"><button class="cs-button" type="submit">Approve</button></form><form method="POST" action="{{ route('admin.users.decide', $user) }}" style="display:inline">@csrf @method('PATCH')<input type="hidden" name="status" value="rejected"><button class="cs-button cs-button-warning" type="submit">Deny</button></form><form method="POST" action="{{ route('admin.users.delete', $user) }}" style="display:inline">@csrf @method('DELETE')<button class="cs-button cs-button-danger" type="submit">Delete</button></form></td></tr>@empty<tr><td colspan="4">No pending accounts.</td></tr>@endforelse</tbody></table></div></section>
-    <section class="cs-panel"><h2>Booking requests</h2><div class="cs-table-wrap"><table class="cs-table"><thead><tr><th>Request</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>@forelse($pendingBookings as $booking)<tr><td><strong>{{ $booking->resource->name }}</strong><br>{{ $booking->user->name }} · {{ $booking->purpose }}</td><td>{{ $booking->date }}<br>{{ $booking->start_time }} - {{ $booking->end_time }}</td><td><span class="cs-status cs-status-pending">Pending</span></td><td class="cs-actions"><form method="POST" action="{{ route('admin.bookings.decide', $booking) }}" style="display:inline">@csrf @method('PATCH')<input type="hidden" name="status" value="approved"><button class="cs-button" type="submit">Approve</button></form><form method="POST" action="{{ route('admin.bookings.decide', $booking) }}" style="display:inline">@csrf @method('PATCH')<input type="hidden" name="status" value="rejected"><button class="cs-button cs-button-danger" type="submit">Decline</button></form></td></tr>@empty<tr><td colspan="4">No pending booking requests.</td></tr>@endforelse</tbody></table></div></section>
-    <section class="cs-panel"><h2>Resources</h2><form method="POST" action="{{ route('admin.resources.store') }}" class="cs-form-grid cs-two-col">@csrf<input class="cs-input" name="name" placeholder="Resource name" required><select class="cs-select" name="type" required><option value="room">Room</option><option value="lab">Laboratory</option><option value="facility">Facility</option><option value="equipment">Equipment</option></select><input class="cs-input" name="location" placeholder="Location"><input class="cs-input" name="capacity" type="number" min="1" placeholder="Capacity"><button class="cs-button" type="submit">Add resource</button></form><div class="cs-table-wrap"><table class="cs-table"><tbody>@foreach($resources as $resource)<tr><td><strong>{{ $resource->name }}</strong><br><small>{{ strtoupper($resource->type) }} · {{ $resource->location }}</small></td><td class="cs-actions"><form method="POST" action="{{ route('admin.resources.delete', $resource) }}">@csrf @method('DELETE')<button class="cs-button cs-button-danger" type="submit">Delete</button></form></td></tr>@endforeach</tbody></table></div></section>
+<div class="cs-header-banner">
+  <div>
+    <h1>Admin Workspace</h1>
+    <p>Manage account registrations, approve space reservations, configure campus resources, and broadcast system notifications.</p>
   </div>
-  <aside class="cs-form-grid"><section class="cs-panel"><h2>Global notice</h2><form method="POST" action="{{ route('admin.notifications.store') }}" class="cs-form-grid">@csrf<label>Title<input class="cs-input" name="title" required></label><label>Message<textarea class="cs-textarea" name="message" rows="5" required></textarea></label><button class="cs-button" type="submit">Publish to everyone</button></form></section><section class="cs-panel"><h2>Recent notices</h2>@forelse($notifications as $notification)<div class="cs-notice"><strong>{{ $notification->title }}</strong><span>{{ $notification->message }}</span></div>@empty<p>No notices published.</p>@endforelse</section></aside>
+  <div>
+    <span class="cs-badge cs-badge-approved" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Admin Mode Active</span>
+  </div>
+</div>
+
+<div class="cs-grid-2" style="align-items: start; margin-bottom: 2rem;">
+  {{-- Pending User Accounts --}}
+  <div class="cs-panel">
+    <div class="cs-panel-header">
+      <div>
+        <h2 class="cs-panel-title"><span>👥</span> Accounts Awaiting Review</h2>
+        <p class="cs-panel-subtitle">New teacher and student registration requests</p>
+      </div>
+      <span class="cs-badge cs-badge-warning">{{ $pendingUsers->count() }} Pending</span>
+    </div>
+
+    @if($pendingUsers->isEmpty())
+      <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No accounts currently pending approval.</p>
+    @else
+      <div class="cs-table-container">
+        <table class="cs-table">
+          <thead>
+            <tr>
+              <th>User Info</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($pendingUsers as $user)
+              <tr>
+                <td>
+                  <strong>{{ $user->name }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ $user->user_id }}{{ $user->section ? ' · '.$user->section : '' }}</div>
+                  @if($user->email)<div style="font-size: 0.75rem; color: var(--text-light);">{{ $user->email }}</div>@endif
+                </td>
+                <td>
+                  <span class="cs-badge cs-badge-neutral">{{ ucfirst($user->role) }}</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                    <form method="POST" action="{{ route('admin.users.decide', $user) }}" style="display:inline">
+                      @csrf
+                      @method('PATCH')
+                      <input type="hidden" name="status" value="approved">
+                      <button class="cs-button cs-button-success cs-button-sm" type="submit">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.users.decide', $user) }}" style="display:inline">
+                      @csrf
+                      @method('PATCH')
+                      <input type="hidden" name="status" value="rejected">
+                      <button class="cs-button cs-button-warning cs-button-sm" type="submit">Deny</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.users.delete', $user) }}" style="display:inline" onsubmit="return confirm('Delete this account completely?');">
+                      @csrf
+                      @method('DELETE')
+                      <button class="cs-button cs-button-danger cs-button-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    @endif
+  </div>
+
+  {{-- Pending Booking Requests --}}
+  <div class="cs-panel">
+    <div class="cs-panel-header">
+      <div>
+        <h2 class="cs-panel-title"><span>🚪</span> Space Booking Requests</h2>
+        <p class="cs-panel-subtitle">Room and facility requests from teachers</p>
+      </div>
+      <span class="cs-badge cs-badge-warning">{{ $pendingBookings->count() }} Pending</span>
+    </div>
+
+    @if($pendingBookings->isEmpty())
+      <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No pending booking requests in the queue.</p>
+    @else
+      <div class="cs-table-container">
+        <table class="cs-table">
+          <thead>
+            <tr>
+              <th>Resource & Teacher</th>
+              <th>Date & Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($pendingBookings as $booking)
+              <tr>
+                <td>
+                  <strong>{{ $booking->resource->name }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ $booking->user->name }} · {{ $booking->purpose }}</div>
+                </td>
+                <td>
+                  <div><strong>{{ date('M d, Y', strtotime($booking->date)) }}</strong></div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ date('g:i A', strtotime($booking->start_time)) }} - {{ date('g:i A', strtotime($booking->end_time)) }}</div>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                    <form method="POST" action="{{ route('admin.bookings.decide', $booking) }}" style="display:inline">
+                      @csrf
+                      @method('PATCH')
+                      <input type="hidden" name="status" value="approved">
+                      <button class="cs-button cs-button-success cs-button-sm" type="submit">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.bookings.decide', $booking) }}" style="display:inline">
+                      @csrf
+                      @method('PATCH')
+                      <input type="hidden" name="status" value="rejected">
+                      <button class="cs-button cs-button-danger cs-button-sm" type="submit">Decline</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    @endif
+  </div>
+</div>
+
+<div class="cs-grid-2" style="align-items: start;">
+  {{-- Campus Resources Management --}}
+  <div class="cs-panel">
+    <div class="cs-panel-header">
+      <div>
+        <h2 class="cs-panel-title"><span>🏛️</span> Campus Resources Management</h2>
+        <p class="cs-panel-subtitle">Add and configure rooms, labs, and equipment</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ route('admin.resources.store') }}" class="cs-form-grid" style="margin-bottom: 1.5rem;">
+      @csrf
+      <div class="cs-grid-2">
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="res_name">Resource Name</label>
+          <input class="cs-input" id="res_name" name="name" placeholder="e.g. Room 302, Cyber Lab" required>
+        </div>
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="res_type">Type</label>
+          <select class="cs-select" id="res_type" name="type" required>
+            <option value="room">Classroom</option>
+            <option value="lab">Laboratory</option>
+            <option value="facility">Facility</option>
+            <option value="equipment">Equipment</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cs-grid-2">
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="res_location">Building / Location</label>
+          <input class="cs-input" id="res_location" name="location" placeholder="e.g. Building B, 2nd Floor">
+        </div>
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="res_capacity">Seat Capacity</label>
+          <input class="cs-input" type="number" id="res_capacity" name="capacity" min="1" placeholder="e.g. 45">
+        </div>
+      </div>
+
+      <button type="submit" class="cs-button">Add Resource</button>
+    </form>
+
+    <div class="cs-table-container">
+      <table class="cs-table">
+        <thead>
+          <tr>
+            <th>Resource</th>
+            <th>Type & Location</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($resources as $res)
+            <tr>
+              <td><strong>{{ $res->name }}</strong></td>
+              <td>
+                <span class="cs-badge cs-badge-neutral">{{ strtoupper($res->type) }}</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 0.25rem;">{{ $res->location }}{{ $res->capacity ? ' ('.$res->capacity.' seats)' : '' }}</span>
+              </td>
+              <td>
+                <form method="POST" action="{{ route('admin.resources.delete', $res) }}" onsubmit="return confirm('Delete this resource?');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="cs-button cs-button-danger cs-button-sm">Delete</button>
+                </form>
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{-- Global System Notices --}}
+  <div class="cs-panel">
+    <div class="cs-panel-header">
+      <div>
+        <h2 class="cs-panel-title"><span>📢</span> Broadcast Global Notice</h2>
+        <p class="cs-panel-subtitle">Publish system announcements to all campus users</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ route('admin.notifications.store') }}" class="cs-form-grid" style="margin-bottom: 1.5rem;">
+      @csrf
+      <div class="cs-form-group">
+        <label class="cs-form-label" for="notice_title">Notice Title</label>
+        <input class="cs-input" id="notice_title" name="title" placeholder="e.g. Campus Maintenance Schedule, Holiday Advisory" required>
+      </div>
+      <div class="cs-form-group">
+        <label class="cs-form-label" for="notice_message">Notice Message</label>
+        <textarea class="cs-textarea" id="notice_message" name="message" rows="4" placeholder="Write full details of the notice..." required></textarea>
+      </div>
+      <button type="submit" class="cs-button cs-button-success">Publish to Everyone</button>
+    </form>
+
+    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.75rem;">Recent Published Notices</h3>
+    <div class="cs-notice-list">
+      @forelse($notifications as $notif)
+        <div class="cs-notice-card">
+          <div class="cs-notice-header">
+            <span class="cs-notice-title">{{ $notif->title }}</span>
+            <span class="cs-notice-time">{{ $notif->created_at->diffForHumans() }}</span>
+          </div>
+          <div class="cs-notice-body">{{ $notif->message }}</div>
+        </div>
+      @empty
+        <p style="color: var(--text-muted); text-align: center; padding: 1rem 0;">No notices published yet.</p>
+      @endforelse
+    </div>
+  </div>
 </div>
 @endsection

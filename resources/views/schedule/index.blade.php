@@ -1,21 +1,78 @@
 @extends('layouts.app')
 
-@section('title', 'Schedule | Campus Scheduler')
+@section('title', 'Master Campus Schedule | Campus Scheduler')
 
 @section('content')
-<section class="cs-hero"><h1>{{ Auth::user()->isTeacher() ? 'Plan your next class' : 'Campus schedule' }}</h1><p>{{ Auth::user()->isTeacher() ? 'Request the spaces and equipment your teaching needs.' : 'Browse approved and pending activity across campus resources.' }}</p></section>
-<div class="cs-layout">
-  <section class="cs-panel"><h2>Visual schedule</h2>
-    <form method="GET" action="{{ route('schedule.index') }}" class="cs-controls"><input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()"><div class="cs-filter-group">@foreach(['all' => 'All', 'room' => 'Rooms', 'lab' => 'Labs', 'facility' => 'Facilities', 'equipment' => 'Equipment'] as $key => $label)<button type="submit" name="type" value="{{ $key }}" class="cs-filter-btn {{ $type === $key ? 'active' : '' }}">{{ $label }}</button>@endforeach</div></form>
-    <div class="cs-grid-wrap"><div class="cs-grid-inner"><div class="cs-grid-header-row"><div class="cs-grid-label-col">Resource</div><div class="cs-grid-hours">@for($m = 420; $m <= 1260; $m += 60)<div class="cs-hour-tick">{{ date('g:i A', mktime(0, $m)) }}</div>@endfor</div></div>
-      @forelse($resources as $resource)<div class="cs-resource-row"><div class="cs-resource-label"><div class="name">{{ $resource->name }}</div><div class="meta">{{ $resource->location }} {{ $resource->capacity ? '· '.$resource->capacity.' seats' : '' }}</div><span class="cs-type-chip">{{ strtoupper($resource->type) }}</span></div><div class="cs-track" style="width: 1120px;">@foreach($bookings->where('resource_id', $resource->id) as $booking)@php $startMin = (strtotime($booking->start_time) - strtotime('07:00')) / 60; $duration = (strtotime($booking->end_time) - strtotime($booking->start_time)) / 60; @endphp<div class="cs-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;"><div class="p">{{ $booking->purpose }}</div><div class="teacher">{{ $booking->user?->name ?? 'Unknown teacher' }}</div><div class="t">{{ date('g:i A', strtotime($booking->start_time)) }} - {{ date('g:i A', strtotime($booking->end_time)) }}</div></div>@endforeach</div></div>@empty<div class="cs-panel">No resources found.</div>@endforelse
-    </div></div>
-  </section>
-  <aside class="cs-form-grid">
-    @if(Auth::user()->isTeacher())<section class="cs-panel"><h2>New booking request</h2><form method="POST" action="{{ route('bookings.store') }}" class="cs-form-grid">@csrf<label>Resource<select name="resource_id" class="cs-select" required><option value="">Choose a resource</option>@foreach($resources as $resource)<option value="{{ $resource->id }}">{{ $resource->name }} ({{ strtoupper($resource->type) }})</option>@endforeach</select></label><label>Date<input class="cs-input" type="date" name="date" min="{{ now()->format('Y-m-d') }}" required></label><div class="cs-form-grid cs-two-col"><label>Starts<input class="cs-input" type="time" name="start_time" required></label><label>Ends<input class="cs-input" type="time" name="end_time" required></label></div><label>Purpose<textarea class="cs-textarea" name="purpose" rows="3" placeholder="e.g. Biology lecture" required></textarea></label><button class="cs-button" type="submit">Submit request</button></form></section>@endif
-    <section class="cs-panel"><h2>Notifications</h2>@forelse($notifications as $notification)<div class="cs-notice"><strong>{{ $notification->title }}</strong><span>{{ $notification->message }}</span><small>{{ $notification->created_at->diffForHumans() }}</small></div>@empty<p>No notifications yet.</p>@endforelse</section>
-    @if(Auth::user()->isTeacher())<section class="cs-panel"><h2>My requests</h2>@forelse($myBookings as $booking)<div class="cs-notice"><strong>{{ $booking->resource->name }}</strong><span>{{ $booking->date }} · {{ $booking->start_time }} - {{ $booking->end_time }}</span><small class="cs-status cs-status-{{ $booking->status }}">{{ ucfirst($booking->status) }}</small></div>@empty<p>No booking requests yet.</p>@endforelse</section>@endif
-    <section class="cs-panel"><h2>Profile</h2><form method="POST" action="{{ route('profile.update') }}" class="cs-form-grid">@csrf @method('PUT')<label>Name<input class="cs-input" name="name" value="{{ Auth::user()->name }}" required></label><label>User ID<input class="cs-input" name="user_id" value="{{ Auth::user()->user_id }}" required></label><label>New password<input class="cs-input" type="password" name="password" minlength="8"></label><label>Confirm password<input class="cs-input" type="password" name="password_confirmation" minlength="8"></label><button class="cs-button cs-button-muted" type="submit">Save profile</button></form></section>
-  </aside>
+<div class="cs-header-banner">
+  <div>
+    <h1>Master Campus Schedule</h1>
+    <p>Browse live room bookings, classroom assignments, and resource occupancy across campus facilities.</p>
+  </div>
+  <div>
+    @if(Auth::user()->isTeacher())
+      <a href="{{ route('teacher.dashboard') }}" class="cs-button">
+        <span>👨‍🏫 Teacher Dashboard</span>
+      </a>
+    @elseif(Auth::user()->isStudent())
+      <a href="{{ route('student.dashboard') }}" class="cs-button">
+        <span>🎓 Student Dashboard</span>
+      </a>
+    @endif
+  </div>
+</div>
+
+<div class="cs-panel">
+  <div class="cs-panel-header">
+    <div>
+      <h2 class="cs-panel-title"><span>🏛️</span> Visual Resource Occupancy</h2>
+      <p class="cs-panel-subtitle">Displaying scheduled reservations for {{ date('l, F j, Y', strtotime($date)) }}</p>
+    </div>
+  </div>
+
+  <form method="GET" action="{{ route('schedule.index') }}" class="cs-controls" style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <input type="date" name="date" class="cs-input" style="width: auto;" value="{{ $date }}" onchange="this.form.submit()">
+    <div class="cs-filter-group">
+      @foreach(['all' => 'All Resources', 'room' => 'Classrooms', 'lab' => 'Laboratories', 'facility' => 'Facilities', 'equipment' => 'Equipment'] as $key => $label)
+        <button type="submit" name="type" value="{{ $key }}" class="cs-filter-btn {{ $type === $key ? 'active' : '' }}">{{ $label }}</button>
+      @endforeach
+    </div>
+  </form>
+
+  <div class="cs-grid-wrap">
+    <div class="cs-grid-inner">
+      <div class="cs-grid-header-row">
+        <div class="cs-grid-label-col">Resource / Space</div>
+        <div class="cs-grid-hours">
+          @for($m = 420; $m <= 1260; $m += 60)
+            <div class="cs-hour-tick">{{ date('g:i A', mktime(0, $m)) }}</div>
+          @endfor
+        </div>
+      </div>
+
+      @forelse($resources as $resource)
+        <div class="cs-resource-row">
+          <div class="cs-resource-label">
+            <div style="font-weight: 700; color: var(--text-main);">{{ $resource->name }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $resource->location }} {{ $resource->capacity ? '· '.$resource->capacity.' seats' : '' }}</div>
+            <span class="cs-badge cs-badge-neutral" style="margin-top: 0.35rem;">{{ strtoupper($resource->type) }}</span>
+          </div>
+          <div class="cs-track" style="width: 1120px;">
+            @foreach($bookings->where('resource_id', $resource->id) as $booking)
+              @php 
+                $startMin = (strtotime($booking->start_time) - strtotime('07:00')) / 60; 
+                $duration = (strtotime($booking->end_time) - strtotime($booking->start_time)) / 60; 
+              @endphp
+              <div class="cs-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;" title="{{ $booking->purpose }}">
+                <div class="teacher">{{ $booking->purpose }}</div>
+                <div>{{ $booking->user?->name ?? 'Instructor' }} · {{ date('g:i A', strtotime($booking->start_time)) }}</div>
+              </div>
+            @endforeach
+          </div>
+        </div>
+      @empty
+        <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">No campus resources found matching criteria.</div>
+      @endforelse
+    </div>
+  </div>
 </div>
 @endsection

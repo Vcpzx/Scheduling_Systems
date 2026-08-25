@@ -3,51 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campus Scheduler - Login</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 1rem; font-family: "Trebuchet MS", "Segoe UI", sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #f3f7f1 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .card { width: min(100%, 380px); padding: clamp(1.25rem, 5vw, 2rem); background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; text-align: center; color: #1e293b; }
-    p { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
-    .group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
-    label { font-size: 0.85rem; font-weight: 600; color: #334155; }
-    input { width: 100%; min-height: 2.75rem; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
-    button { width: 100%; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 0.5rem; }
-    button:hover { background: #1d4ed8; }
-    .error { padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; }
-  </style>
+  <title>Sign In — Campus Scheduler</title>
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="card">
-    <h2>Campus Scheduler</h2>
-    <p>Sign in to your account</p>
+<body class="cs-auth-page">
+
+  <div class="cs-auth-card">
+    <div class="cs-auth-header">
+      <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+        <span class="cs-logo-badge" style="font-size: 1.25rem; padding: 0.6rem 0.9rem;">CS</span>
+      </div>
+      <h2>Campus Scheduler</h2>
+      <p>Room Booking & Academic Scheduling System</p>
+    </div>
 
     @if($errors->has('auth'))
-      <div class="error">{{ $errors->first('auth') }}</div>
+      <div class="cs-alert cs-alert-danger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>{{ $errors->first('auth') }}</span>
+      </div>
     @endif
+
     @if(session('success'))
-      <div style="padding: .75rem; background: #dcfce7; color: #166534; border-radius: 6px; font-size: .85rem; margin-bottom: 1rem;">{{ session('success') }}</div>
+      <div class="cs-alert cs-alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>{{ session('success') }}</span>
+      </div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}">
+    @if(session('info'))
+      <div class="cs-alert cs-alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>{{ session('info') }}</span>
+      </div>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" class="cs-form-grid">
       @csrf
-      <div class="group">
-        <label>User ID</label>
-        <input type="text" name="user_id" placeholder="Enter Your ID" required>
+      <div class="cs-form-group">
+        <label class="cs-form-label" for="user_id">User ID / Username</label>
+        <input class="cs-input" type="text" id="user_id" name="user_id" value="{{ old('user_id') }}" placeholder="e.g. SEC-001, T-101, S-201" required autofocus>
       </div>
 
-      <div class="group">
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Enter Your Password" required>
+      <div class="cs-form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label class="cs-form-label" for="password">Password</label>
+          <a href="{{ route('password.request') }}" style="font-size: 0.8rem; font-weight: 600;">Forgot Password?</a>
+        </div>
+        <div class="cs-password-wrapper">
+          <input class="cs-input" type="password" id="password" name="password" placeholder="Enter your password" required>
+          <button type="button" class="cs-password-toggle" title="Toggle password visibility" aria-label="Show or hide password">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
       </div>
 
-      <button type="submit">Sign In</button>
-      <!-- Add this below <button type="submit">Sign In</button> -->
-<p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #64748b;">
-  Don't have an account? <a href="{{ route('register') }}" style="color: #2563eb; text-decoration: none; font-weight: 600;">Create Account</a>
-</p>
+      <button type="submit" class="cs-button" style="width: 100%; margin-top: 0.5rem;">
+        Sign In to Account
+      </button>
     </form>
+
+    <div class="cs-auth-footer">
+      Don't have an account? <a href="{{ route('register') }}" style="font-weight: 700;">Create an Account</a>
+    </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggleButtons = document.querySelectorAll('.cs-password-toggle');
+      toggleButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+          e.preventDefault();
+          const wrapper = button.closest('.cs-password-wrapper');
+          if (!wrapper) return;
+          const input = wrapper.querySelector('input');
+          if (!input) return;
+
+          const isPassword = input.getAttribute('type') === 'password';
+          input.setAttribute('type', isPassword ? 'text' : 'password');
+
+          button.innerHTML = isPassword
+            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        });
+      });
+    });
+  </script>
 </body>
 </html>

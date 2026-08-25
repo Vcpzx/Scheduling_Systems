@@ -18,9 +18,14 @@ class User extends Authenticatable
     protected $fillable = [
         'user_id',
         'name',
+        'email',
+        'section',
+        'department',
         'role',
         'status',
         'password',
+        'decided_by',
+        'decided_at',
     ];
 
     /**
@@ -42,6 +47,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'decided_at' => 'datetime',
         ];
     }
 
@@ -63,5 +69,45 @@ class User extends Authenticatable
     public function bookingRequests()
     {
         return $this->hasMany(BookingRequest::class);
+    }
+
+    public function classSchedules()
+    {
+        return $this->hasMany(ClassSchedule::class, 'teacher_id');
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class, 'student_id');
+    }
+
+    public function enrolledClasses()
+    {
+        return $this->belongsToMany(ClassSchedule::class, 'student_enrollments', 'student_id', 'class_schedule_id')
+            ->withTimestamps();
+    }
+
+    public function sentNotifications()
+    {
+        return $this->hasMany(UserNotification::class, 'sender_id');
+    }
+
+    public function receivedNotifications()
+    {
+        return UserNotification::where(function ($query) {
+            $query->where('recipient_type', 'all');
+            if ($this->isStudent()) {
+                if ($this->section) {
+                    $query->orWhere(function ($q) {
+                        $q->where('recipient_type', 'section')
+                          ->where('target_section', $this->section);
+                    });
+                }
+                $query->orWhere(function ($q) {
+                    $q->where('recipient_type', 'student')
+                      ->where('target_user_id', $this->id);
+                });
+            }
+        })->latest();
     }
 }
