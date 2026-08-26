@@ -10,7 +10,7 @@
   </div>
   <div>
     <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-button">
-      <span>📝 Subject Registration</span>
+      <span>Subject Registration</span>
     </a>
   </div>
 </div>
@@ -40,7 +40,7 @@
   <div class="cs-upcoming-alert" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
     <div class="cs-upcoming-content">
       <div class="cs-upcoming-icon">
-        <span>⏰</span>
+        <span>🕕</span>
       </div>
       <div>
         <div class="cs-upcoming-title">Next Class Today</div>
@@ -60,24 +60,22 @@
 
 {{-- Sub-Navigation Tabs --}}
 <div class="cs-tabs-wrapper">
-  <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
-    <span>📅 My Class Schedule</span>
-    <span class="cs-tab-count">{{ $enrolledClasses->count() }}</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-tab-btn {{ $tab === 'registration' ? 'active' : '' }}">
-    <span>📝 Registration & Subjects</span>
-    <span class="cs-tab-count">{{ count($availableOfferings) }}</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
-    <span>🔔 Notifications Inbox</span>
-    <span class="cs-tab-count">{{ $directNotifications->count() + $systemNotifications->count() }}</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'campus-schedule']) }}" class="cs-tab-btn {{ $tab === 'campus-schedule' ? 'active' : '' }}">
-    <span>🏛️ Master Campus View</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
-    <span>👤 Account & Credentials</span>
-  </a>
+    <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
+      <span>My Class Schedule</span>
+      <span class="cs-tab-count">{{ $enrolledClasses->count() }}</span>
+    </a>
+    <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-tab-btn {{ $tab === 'registration' ? 'active' : '' }}">
+      <span>Registration & Subjects</span>
+      <span class="cs-tab-count">{{ count($availableOfferings) }}</span>
+    </a>
+    <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
+      <span>Notifications Inbox</span>
+      <span class="cs-tab-count">{{ $directNotifications->count() + $systemNotifications->count() }}</span>
+    </a>
+    </a>
+    <a href="{{ route('student.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
+      <span> Account Settings</span>
+    </a>
 </div>
 
 {{-- TAB 1: MY SCHEDULE --}}
@@ -85,12 +83,12 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>📅</span> Enrolled Subjects & Room Schedules</h2>
+        <h2 class="cs-panel-title"><span></span> Enrolled Subjects & Room Schedules</h2>
         <p class="cs-panel-subtitle">Your personal timetable generated automatically from your enrolled classes</p>
       </div>
       <div>
         <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-button cs-button-secondary cs-button-sm">
-          <span>➕ Add / Change Subjects</span>
+          <span>+ Add / Change Subjects</span>
         </a>
       </div>
     </div>
@@ -125,7 +123,7 @@
               <h3 class="schedule-subject-name">{{ $cs->subject_name }}</h3>
 
               <div class="schedule-time-box">
-                <div class="schedule-time-icon">🕒</div>
+                  <!-- //deleted time logo schedule card -->
                 <div>
                   <div class="schedule-time-text">{{ $cs->formatted_time }}</div>
                   <div class="schedule-days-text">📅 {{ $cs->days }} · {{ $cs->semester }}</div>
@@ -172,7 +170,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>⚡</span> 1-Click Section Registration</h2>
+          <h2 class="cs-panel-title">1-Click Section Registration</h2>
           <p class="cs-panel-subtitle">Automatically load all subject schedules for your assigned class section</p>
         </div>
       </div>
@@ -216,7 +214,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>📚</span> Available Semester Offerings</h2>
+          <h2 class="cs-panel-title">Available Semester Offerings</h2>
           <p class="cs-panel-subtitle">Enroll in individual subjects or electives</p>
         </div>
       </div>
@@ -272,7 +270,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>📢</span> Teacher Announcements</h2>
+          <h2 class="cs-panel-title">Teacher Announcements</h2>
           <p class="cs-panel-subtitle">Notices for your section ({{ $student->section ?? 'General' }}) or sent directly to you</p>
         </div>
       </div>
@@ -303,7 +301,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>🏛️</span> Campus-Wide Notices</h2>
+          <h2 class="cs-panel-title">Campus-Wide Notices</h2>
           <p class="cs-panel-subtitle">Official announcements from the administration</p>
         </div>
       </div>
@@ -388,7 +386,7 @@
   <div class="cs-panel" style="max-width: 600px; margin: 0 auto;">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>👤</span> Account & Credentials</h2>
+        <h2 class="cs-panel-title">Account Settings</h2>
         <p class="cs-panel-subtitle">Update your student information, class section, email, and password</p>
       </div>
     </div>

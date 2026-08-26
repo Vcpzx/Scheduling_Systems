@@ -18,7 +18,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>👥</span> Accounts Awaiting Review</h2>
+        <h2 class="cs-panel-title">Accounts Awaiting Review</h2>
         <p class="cs-panel-subtitle">New teacher and student registration requests</p>
       </div>
       <span class="cs-badge cs-badge-warning">{{ $pendingUsers->count() }} Pending</span>
@@ -80,7 +80,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>🚪</span> Space Booking Requests</h2>
+        <h2 class="cs-panel-title">Space Booking Requests</h2>
         <p class="cs-panel-subtitle">Room and facility requests from teachers</p>
       </div>
       <span class="cs-badge cs-badge-warning">{{ $pendingBookings->count() }} Pending</span>
@@ -139,7 +139,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>🏛️</span> Campus Resources Management</h2>
+        <h2 class="cs-panel-title">Campus Resources Management</h2>
         <p class="cs-panel-subtitle">Add and configure rooms, labs, and equipment</p>
       </div>
     </div>
@@ -211,7 +211,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>📢</span> Broadcast Global Notice</h2>
+        <h2 class="cs-panel-title">Broadcast Global Notice</h2>
         <p class="cs-panel-subtitle">Publish system announcements to all campus users</p>
       </div>
     </div>

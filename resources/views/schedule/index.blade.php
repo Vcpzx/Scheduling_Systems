@@ -11,7 +11,7 @@
   <div>
     @if(Auth::user()->isTeacher())
       <a href="{{ route('teacher.dashboard') }}" class="cs-button">
-        <span>👨‍🏫 Teacher Dashboard</span>
+        <span>Teacher Dashboard</span>
       </a>
     @elseif(Auth::user()->isStudent())
       <a href="{{ route('student.dashboard') }}" class="cs-button">
@@ -24,7 +24,7 @@
 <div class="cs-panel">
   <div class="cs-panel-header">
     <div>
-      <h2 class="cs-panel-title"><span>🏛️</span> Visual Resource Occupancy</h2>
+      <h2 class="cs-panel-title"><span></span> Visual Resource Occupancy</h2>
       <p class="cs-panel-subtitle">Displaying scheduled reservations for {{ date('l, F j, Y', strtotime($date)) }}</p>
     </div>
   </div>

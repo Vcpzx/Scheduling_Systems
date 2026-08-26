@@ -20,31 +20,33 @@
     <nav class="cs-nav-links">
       @if(Auth::user()->isTeacher())
         <a href="{{ route('teacher.dashboard', ['tab' => 'schedule']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && (request('tab', 'schedule') == 'schedule') ? 'active' : '' }}">
-          <span>📅 Schedule</span>
+          <span>Schedule</span>
         </a>
         <a href="{{ route('teacher.dashboard', ['tab' => 'semesters']) }}" class="cs-nav-item {{ request('tab') == 'semesters' ? 'active' : '' }}">
-          <span>📚 Semesters & Classes</span>
+          <span>Semesters & Classes</span>
         </a>
         <a href="{{ route('teacher.dashboard', ['tab' => 'room-requests']) }}" class="cs-nav-item {{ request('tab') == 'room-requests' ? 'active' : '' }}">
-          <span>🚪 Room Requests</span>
+          <span>Room Requests</span>
         </a>
         <a href="{{ route('teacher.dashboard', ['tab' => 'notifications']) }}" class="cs-nav-item {{ request('tab') == 'notifications' ? 'active' : '' }}">
-          <span>🔔 Notifications</span>
+          <span>Notifications</span>
         </a>
       @elseif(Auth::user()->isStudent())
         <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-nav-item {{ request()->routeIs('student.dashboard') && (request('tab', 'schedule') == 'schedule') ? 'active' : '' }}">
-          <span>📅 My Schedule</span>
+          <span>My Schedule</span>
         </a>
         <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-nav-item {{ request('tab') == 'registration' ? 'active' : '' }}">
-          <span>📝 Subject Registration</span>
+          <span>Subject Registration</span>
         </a>
         <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-nav-item {{ request('tab') == 'notifications' ? 'active' : '' }}">
-          <span>🔔 Notifications</span>
+          <span>Notifications</span>
         </a>
+        
+  </a>
       @endif
 
       <a href="{{ route('schedule.index') }}" class="cs-nav-item {{ request()->routeIs('schedule.index') ? 'active' : '' }}">
-        <span>🏛️ Master Campus View</span>
+        <span>Schedules</span>
       </a>
 
       @if(Auth::user()->isAdmin())

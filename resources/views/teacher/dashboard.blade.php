@@ -10,7 +10,7 @@
   </div>
   <div>
     <a href="{{ route('teacher.dashboard', ['tab' => 'semesters']) }}" class="cs-button cs-button-primary">
-      <span>➕ New Class Schedule</span>
+      <span>Add New Class Schedule</span>
     </a>
   </div>
 </div>
@@ -40,7 +40,7 @@
   <div class="cs-upcoming-alert" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
     <div class="cs-upcoming-content">
       <div class="cs-upcoming-icon">
-        <span>⏰</span>
+        <span>🕕</span>
       </div>
       <div>
         <div class="cs-upcoming-title">Upcoming Class Today</div>
@@ -60,28 +60,28 @@
 {{-- Sub-Navigation Tabs --}}
 <div class="cs-tabs-wrapper">
   <a href="{{ route('teacher.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
-    <span>📅 Class Timetable & Schedule</span>
+    <span>Class Timetable & Schedule</span>
     <span class="cs-tab-count">{{ $classSchedules->count() }}</span>
   </a>
   <a href="{{ route('teacher.dashboard', ['tab' => 'semesters']) }}" class="cs-tab-btn {{ $tab === 'semesters' ? 'active' : '' }}">
-    <span>📚 Semester Handling & Loads</span>
+    <span>Semester Handling & Loads</span>
   </a>
   <a href="{{ route('teacher.dashboard', ['tab' => 'room-requests']) }}" class="cs-tab-btn {{ $tab === 'room-requests' ? 'active' : '' }}">
-    <span>🚪 Room Requests</span>
+    <span>Room Requests</span>
   </a>
   <a href="{{ route('teacher.dashboard', ['tab' => 'recent-requests']) }}" class="cs-tab-btn {{ $tab === 'recent-requests' ? 'active' : '' }}">
-    <span>📋 Recent Requests</span>
+    <span>Recent Requests</span>
     <span class="cs-tab-count">{{ $myBookings->count() }}</span>
   </a>
   <a href="{{ route('teacher.dashboard', ['tab' => 'send-notification']) }}" class="cs-tab-btn {{ $tab === 'send-notification' ? 'active' : '' }}">
-    <span>✉️ Notify Students</span>
+    <span>Notify Students</span>
   </a>
   <a href="{{ route('teacher.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
-    <span>🔔 Inbox & Notices</span>
+    <span>Inbox & Notices</span>
     <span class="cs-tab-count">{{ $systemNotifications->count() + $sentNotifications->count() }}</span>
   </a>
   <a href="{{ route('teacher.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
-    <span>👤 Account & Credentials</span>
+    <span>Account Settings</span>
   </a>
 </div>
 
@@ -90,7 +90,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>📅</span> My Teaching Schedule</h2>
+        <h2 class="cs-panel-title"><span></span> My Teaching Schedule</h2>
         <p class="cs-panel-subtitle">Classes assigned for {{ $selectedSemester }} (A.Y. {{ $selectedYear }})</p>
       </div>
       <form method="GET" action="{{ route('teacher.dashboard') }}" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -139,7 +139,7 @@
               <h3 class="schedule-subject-name">{{ $cs->subject_name }}</h3>
 
               <div class="schedule-time-box">
-                <div class="schedule-time-icon">🕒</div>
+                <div class="schedule-time-icon"></div>
                 <div>
                   <div class="schedule-time-text">{{ $cs->formatted_time }}</div>
                   <div class="schedule-days-text">📅 {{ $cs->days }} · {{ $cs->semester }}</div>
@@ -186,8 +186,8 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>➕</span> Schedule / Booking Creation</h2>
-          <p class="cs-panel-subtitle">Create a class schedule or book a room for a specific section</p>
+          <h2 class="cs-panel-title"><span></span> Schedule / Request Room</h2>
+          <p class="cs-panel-subtitle">Create a class schedule or Request a room for a specific section</p>
         </div>
       </div>
 
@@ -275,7 +275,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>📚</span> Semester Handling Overview</h2>
+          <h2 class="cs-panel-title"><span></span> Semester Handling Overview</h2>
           <p class="cs-panel-subtitle">Classes & sections you handle this academic year</p>
         </div>
       </div>
@@ -324,7 +324,7 @@
   <div class="cs-panel" style="max-width: 760px; margin: 0 auto;">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>🚪</span> Submit Room Booking Request</h2>
+        <h2 class="cs-panel-title"><span></span> Submit Room Booking Request</h2>
         <p class="cs-panel-subtitle">Request specialized campus rooms, labs, or equipment for events, exams, or makeup classes</p>
       </div>
     </div>
@@ -372,12 +372,12 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>📋</span> Room Request History & Status</h2>
+        <h2 class="cs-panel-title"><span></span> Room Request History & Status</h2>
         <p class="cs-panel-subtitle">Track the approval status of your past and pending room reservation requests</p>
       </div>
       <div>
         <a href="{{ route('teacher.dashboard', ['tab' => 'room-requests']) }}" class="cs-button cs-button-sm">
-          <span>➕ New Request</span>
+          <span>Add New Request</span>
         </a>
       </div>
     </div>
@@ -438,7 +438,7 @@
   <div class="cs-panel" style="max-width: 760px; margin: 0 auto;">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>✉️</span> Send Notification to Students</h2>
+        <h2 class="cs-panel-title"><span></span> Send Notification to Students</h2>
         <p class="cs-panel-subtitle">Compose and send class announcements or individual reminders</p>
       </div>
     </div>
@@ -518,7 +518,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>🔔</span> System & Campus Notices</h2>
+          <h2 class="cs-panel-title"><span></span> System & Campus Notices</h2>
           <p class="cs-panel-subtitle">Official announcements from administrators</p>
         </div>
       </div>
@@ -542,7 +542,7 @@
     <div class="cs-panel">
       <div class="cs-panel-header">
         <div>
-          <h2 class="cs-panel-title"><span>📤</span> Sent Student Announcements</h2>
+          <h2 class="cs-panel-title"><span></span> Sent Student Announcements</h2>
           <p class="cs-panel-subtitle">History of notices sent by you</p>
         </div>
         <div>
@@ -581,7 +581,7 @@
   <div class="cs-panel" style="max-width: 600px; margin: 0 auto;">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>👤</span> Account & Credentials</h2>
+        <h2 class="cs-panel-title"><span>👤</span> Account Settings</h2>
         <p class="cs-panel-subtitle">Update your personal information, email address, and security password</p>
       </div>
     </div>
