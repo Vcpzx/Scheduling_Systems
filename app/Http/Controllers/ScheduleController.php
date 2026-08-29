@@ -19,12 +19,12 @@ class ScheduleController extends Controller
         $user = $request->user();
 
         if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('schedule.index');
         }
         if ($user->isTeacher()) {
-            return redirect()->route('teacher.dashboard');
+            return redirect()->route('teacher.dashboard', ['tab' => 'schedule']);
         }
-        return redirect()->route('student.dashboard');
+        return redirect()->route('student.dashboard', ['tab' => 'schedule']);
     }
 
     /**

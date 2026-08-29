@@ -11,11 +11,13 @@
   <div>
     @if(Auth::user()->isTeacher())
       <a href="{{ route('teacher.dashboard') }}" class="cs-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
         <span>Teacher Dashboard</span>
       </a>
     @elseif(Auth::user()->isStudent())
       <a href="{{ route('student.dashboard') }}" class="cs-button">
-        <span>🎓 Student Dashboard</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>Student Dashboard</span>
       </a>
     @endif
   </div>
@@ -24,7 +26,7 @@
 <div class="cs-panel">
   <div class="cs-panel-header">
     <div>
-      <h2 class="cs-panel-title"><span></span> Visual Resource Occupancy</h2>
+      <h2 class="cs-panel-title">Visual Resource Occupancy</h2>
       <p class="cs-panel-subtitle">Displaying scheduled reservations for {{ date('l, F j, Y', strtotime($date)) }}</p>
     </div>
   </div>
@@ -62,9 +64,9 @@
                 $startMin = (strtotime($booking->start_time) - strtotime('07:00')) / 60; 
                 $duration = (strtotime($booking->end_time) - strtotime($booking->start_time)) / 60; 
               @endphp
-              <div class="cs-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;" title="{{ $booking->purpose }}">
-                <div class="teacher">{{ $booking->purpose }}</div>
-                <div>{{ $booking->user?->name ?? 'Instructor' }} · {{ date('g:i A', strtotime($booking->start_time)) }}</div>
+              <div class="cs-booking-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;" title="{{ $booking->purpose }}">
+                <div style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $booking->purpose }}</div>
+                <div style="font-size: 0.7rem; opacity: 0.9;">{{ $booking->user?->name ?? 'Instructor' }} · {{ date('g:i A', strtotime($booking->start_time)) }}</div>
               </div>
             @endforeach
           </div>

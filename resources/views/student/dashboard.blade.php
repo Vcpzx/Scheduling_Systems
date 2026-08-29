@@ -10,6 +10,7 @@
   </div>
   <div>
     <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
       <span>Subject Registration</span>
     </a>
   </div>
@@ -20,35 +21,53 @@
   <div class="cs-upcoming-alert">
     <div class="cs-upcoming-content">
       <div class="cs-upcoming-icon">
-        <span class="cs-pulse-dot"></span>
+        <span class="cs-status-indicator active"></span>
       </div>
       <div>
-        <div class="cs-upcoming-title">🟢 Current Class In Session (Attending Now)</div>
+        <div class="cs-upcoming-title"><span class="cs-status-indicator active"></span> Current Class In Session (Attending Now)</div>
         <div class="cs-upcoming-subject">{{ $currentClass->subject_code }} — {{ $currentClass->subject_name }}</div>
         <div class="cs-upcoming-meta">
-          <span>🕒 {{ $currentClass->formatted_time }}</span>
-          <span>👨‍🏫 {{ $currentClass->teacher->name ?? 'Instructor' }}</span>
-          <span>📍 {{ $currentClass->effective_room }}</span>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            {{ $currentClass->formatted_time }}
+          </span>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            {{ $currentClass->teacher->name ?? 'Instructor' }}
+          </span>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            {{ $currentClass->effective_room }}
+          </span>
         </div>
       </div>
     </div>
     <div>
-      <span class="cs-badge cs-badge-approved" style="font-size: 0.85rem; padding: 0.5rem 1rem; background: #ffffff; color: var(--success-dark);">🟢 Happening Now</span>
+      <span class="cs-badge cs-badge-approved" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Happening Now</span>
     </div>
   </div>
 @elseif($upcomingClass)
   <div class="cs-upcoming-alert" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
     <div class="cs-upcoming-content">
       <div class="cs-upcoming-icon">
-        <span>🕕</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
       </div>
       <div>
         <div class="cs-upcoming-title">Next Class Today</div>
         <div class="cs-upcoming-subject">{{ $upcomingClass->subject_code }} — {{ $upcomingClass->subject_name }}</div>
         <div class="cs-upcoming-meta">
-          <span>🕒 Starts at {{ date('g:i A', strtotime($upcomingClass->start_time)) }} ({{ $upcomingClass->formatted_time }})</span>
-          <span>👨‍🏫 {{ $upcomingClass->teacher->name ?? 'Instructor' }}</span>
-          <span>📍 {{ $upcomingClass->effective_room }}</span>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Starts at {{ date('g:i A', strtotime($upcomingClass->start_time)) }} ({{ $upcomingClass->formatted_time }})
+          </span>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            {{ $upcomingClass->teacher->name ?? 'Instructor' }}
+          </span>
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            {{ $upcomingClass->effective_room }}
+          </span>
         </div>
       </div>
     </div>
@@ -60,22 +79,25 @@
 
 {{-- Sub-Navigation Tabs --}}
 <div class="cs-tabs-wrapper">
-    <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
-      <span>My Class Schedule</span>
-      <span class="cs-tab-count">{{ $enrolledClasses->count() }}</span>
-    </a>
-    <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-tab-btn {{ $tab === 'registration' ? 'active' : '' }}">
-      <span>Registration & Subjects</span>
-      <span class="cs-tab-count">{{ count($availableOfferings) }}</span>
-    </a>
-    <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
-      <span>Notifications Inbox</span>
-      <span class="cs-tab-count">{{ $directNotifications->count() + $systemNotifications->count() }}</span>
-    </a>
-    </a>
-    <a href="{{ route('student.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
-      <span> Account Settings</span>
-    </a>
+  <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    <span>My Class Schedule</span>
+    <span class="cs-tab-count">{{ $enrolledClasses->count() }}</span>
+  </a>
+  <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-tab-btn {{ $tab === 'registration' ? 'active' : '' }}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
+    <span>Registration & Subjects</span>
+    <span class="cs-tab-count">{{ count($availableOfferings) }}</span>
+  </a>
+  <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+    <span>Notifications Inbox</span>
+    <span class="cs-tab-count">{{ $directNotifications->count() + $systemNotifications->count() }}</span>
+  </a>
+  <a href="{{ route('student.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    <span>Account Settings</span>
+  </a>
 </div>
 
 {{-- TAB 1: MY SCHEDULE --}}
@@ -83,7 +105,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span></span> Enrolled Subjects & Room Schedules</h2>
+        <h2 class="cs-panel-title">Enrolled Subjects & Room Schedules</h2>
         <p class="cs-panel-subtitle">Your personal timetable generated automatically from your enrolled classes</p>
       </div>
       <div>
@@ -95,7 +117,9 @@
 
     @if($enrolledClasses->isEmpty())
       <div style="text-align: center; padding: 3.5rem 1rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.75rem;">📅</div>
+        <div style="margin-bottom: 0.75rem; color: var(--text-light);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
         <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">No Enrolled Classes Found</h3>
         <p style="color: var(--text-muted); max-width: 450px; margin: 0.5rem auto 1.5rem;">You haven't enrolled in any subjects yet. Visit the Registration section to automatically generate your timetable by selecting your section or subjects.</p>
         <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-button">Go to Subject Registration</a>
@@ -104,45 +128,51 @@
       <div class="schedule-grid">
         @foreach($enrolledClasses as $cs)
           @php $isActive = $cs->isCurrentClass(); @endphp
-          <div class="schedule-card {{ $isActive ? 'current-class' : '' }}">
+          <div class="schedule-card {{ $isActive ? 'active-now' : '' }}">
             <div>
               <div class="schedule-card-header">
                 <div>
-                  <span class="schedule-code-badge">{{ $cs->subject_code }}</span>
+                  <span class="schedule-subject-code">{{ $cs->subject_code }}</span>
                   <span class="schedule-section-badge">{{ $cs->section }}</span>
                 </div>
                 @if($isActive)
-                  <span class="schedule-live-badge">
-                    <span class="cs-pulse-dot"></span> Current Class
+                  <span class="cs-badge cs-badge-approved">
+                    <span class="cs-status-indicator active"></span> Current Class
                   </span>
                 @elseif($cs->isUpcomingToday())
-                  <span class="schedule-upcoming-badge">⏳ Today</span>
+                  <span class="cs-badge cs-badge-warning">Today</span>
                 @endif
               </div>
 
               <h3 class="schedule-subject-name">{{ $cs->subject_name }}</h3>
 
-              <div class="schedule-time-box">
-                  <!-- //deleted time logo schedule card -->
-                <div>
-                  <div class="schedule-time-text">{{ $cs->formatted_time }}</div>
-                  <div class="schedule-days-text">📅 {{ $cs->days }} · {{ $cs->semester }}</div>
+              <div style="margin-bottom: 1rem;">
+                <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">{{ $cs->formatted_time }}</div>
+                <div class="schedule-days-text">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  {{ $cs->days }} · {{ $cs->semester }}
                 </div>
               </div>
             </div>
 
             <div class="schedule-meta-list">
               <div class="schedule-meta-item">
-                <span>👨‍🏫</span>
+                <span class="schedule-meta-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </span>
                 <span><strong>Instructor:</strong> {{ $cs->teacher->name ?? 'Prof. Assigned' }}</span>
               </div>
               <div class="schedule-meta-item">
-                <span>📍</span>
+                <span class="schedule-meta-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </span>
                 <span><strong>Room / Location:</strong> {{ $cs->effective_room }}</span>
               </div>
               @if($cs->notes)
                 <div class="schedule-meta-item" style="color: var(--text-muted); font-size: 0.8rem;">
-                  <span>📝</span>
+                  <span class="schedule-meta-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  </span>
                   <span>{{ $cs->notes }}</span>
                 </div>
               @endif
@@ -153,7 +183,8 @@
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="cs-button cs-button-secondary cs-button-sm" style="color: var(--danger);">
-                  Drop Subject
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <span>Drop Subject</span>
                 </button>
               </form>
             </div>
@@ -205,7 +236,7 @@
         </div>
 
         <button type="submit" class="cs-button cs-button-success" style="width: 100%;">
-          <span>🚀 Auto-Generate My Schedule</span>
+          <span>Auto-Generate My Schedule</span>
         </button>
       </form>
     </div>
@@ -238,7 +269,10 @@
                   <td>
                     <strong>{{ $offering->subject_code }}</strong> <span class="cs-badge cs-badge-neutral">{{ $offering->section }}</span>
                     <div style="font-size: 0.8rem; color: var(--text-muted);">{{ $offering->subject_name }}</div>
-                    <div style="font-size: 0.75rem; color: var(--primary);">👨‍🏫 {{ $offering->teacher->name ?? 'Instructor' }}</div>
+                    <div style="font-size: 0.75rem; color: var(--primary); display: flex; align-items: center; gap: 0.35rem; margin-top: 0.15rem;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      {{ $offering->teacher->name ?? 'Instructor' }}
+                    </div>
                   </td>
                   <td>
                     <div><strong>{{ $offering->formatted_time }}</strong></div>
@@ -284,7 +318,8 @@
             </div>
             <div class="cs-notice-body">{{ $notice->message }}</div>
             <div class="cs-notice-sender">
-              👨‍🏫 From: {{ $notice->sender->name ?? 'Instructor' }}
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              From: {{ $notice->sender->name ?? 'Instructor' }}
               @if($notice->recipient_type === 'section')
                 · (To Section {{ $notice->target_section }})
               @elseif($notice->recipient_type === 'student')
@@ -314,7 +349,10 @@
               <span class="cs-notice-time">{{ $notice->created_at->diffForHumans() }}</span>
             </div>
             <div class="cs-notice-body">{{ $notice->message }}</div>
-            <div class="cs-notice-sender">🏛️ Campus Administration</div>
+            <div class="cs-notice-sender">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              Campus Administration
+            </div>
           </div>
         @empty
           <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No system notices at this time.</p>
@@ -328,7 +366,7 @@
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
-        <h2 class="cs-panel-title"><span>🏛️</span> Campus Master Schedule & Room Occupancy</h2>
+        <h2 class="cs-panel-title">Campus Master Schedule & Room Occupancy</h2>
         <p class="cs-panel-subtitle">Visual timeline of room and facility reservations</p>
       </div>
     </div>
@@ -367,15 +405,15 @@
                   $startMin = (strtotime($booking->start_time) - strtotime('07:00')) / 60; 
                   $duration = (strtotime($booking->end_time) - strtotime($booking->start_time)) / 60; 
                 @endphp
-                <div class="cs-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;" title="{{ $booking->purpose }}">
-                  <div class="teacher">{{ $booking->purpose }}</div>
-                  <div>{{ $booking->user?->name }} · {{ date('g:i A', strtotime($booking->start_time)) }}</div>
+                <div class="cs-booking-block {{ $booking->status }}" style="left: {{ $startMin * (80 / 60) }}px; width: {{ max($duration * (80 / 60), 30) }}px;" title="{{ $booking->purpose }}">
+                  <div style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $booking->purpose }}</div>
+                  <div style="font-size: 0.7rem; opacity: 0.9;">{{ $booking->user?->name }} · {{ date('g:i A', strtotime($booking->start_time)) }}</div>
                 </div>
               @endforeach
             </div>
           </div>
         @empty
-          <div style="padding: 2rem; text-align: center;">No resources found.</div>
+          <div style="padding: 2rem; text-align: center; color: var(--text-muted);">No resources found.</div>
         @endforelse
       </div>
     </div>
@@ -426,7 +464,7 @@
             <div class="cs-password-wrapper">
               <input class="cs-input" type="password" id="stu_password" name="password" minlength="6" placeholder="New password">
               <button type="button" class="cs-password-toggle" title="Toggle password visibility">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               </button>
             </div>
           </div>
@@ -436,7 +474,7 @@
             <div class="cs-password-wrapper">
               <input class="cs-input" type="password" id="stu_password_confirmation" name="password_confirmation" minlength="6" placeholder="Confirm password">
               <button type="button" class="cs-password-toggle" title="Toggle password visibility">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               </button>
             </div>
           </div>
@@ -444,7 +482,7 @@
       </div>
 
       <button type="submit" class="cs-button cs-button-success" style="width: 100%; margin-top: 0.5rem;">
-        <span>💾 Save Profile & Credentials</span>
+        <span>Save Profile & Credentials</span>
       </button>
     </form>
   </div>
