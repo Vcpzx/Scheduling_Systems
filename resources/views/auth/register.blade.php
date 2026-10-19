@@ -75,7 +75,7 @@
 
         <div class="cs-form-group">
           <label class="cs-form-label" for="role">Role</label>
-          <select class="cs-select" id="role" name="role" required onchange="toggleSectionField(this.value)">
+          <select class="cs-select" id="role" name="role" required onchange="toggleStudentFields(this.value)">
             <option value="student" {{ old('role') === 'student' ? 'selected' : '' }}>Student</option>
             <option value="teacher" {{ old('role') === 'teacher' ? 'selected' : '' }}>Teacher</option>
           </select>
@@ -92,10 +92,27 @@
           <label class="cs-form-label" for="email">Email Address <span style="font-weight: 400; color: var(--text-muted);">(Optional)</span></label>
           <input class="cs-input" type="email" id="email" name="email" value="{{ old('email') }}" placeholder="user@campus.edu">
         </div>
+      </div>
+
+      <div class="cs-grid-2">
+        <div class="cs-form-group" id="course-group">
+          <label class="cs-form-label" for="course">Course <span style="font-weight: 400; color: var(--text-muted);">(Students)</span></label>
+          <select class="cs-select" id="course" name="course">
+            <option value="">Choose your course</option>
+            @foreach(\App\Models\User::COURSES as $course)
+              <option value="{{ $course }}" {{ old('course') === $course ? 'selected' : '' }}>{{ $course }}</option>
+            @endforeach
+          </select>
+        </div>
 
         <div class="cs-form-group" id="section-group">
           <label class="cs-form-label" for="section">Class Section <span style="font-weight: 400; color: var(--text-muted);">(Students)</span></label>
-          <input class="cs-input" type="text" id="section" name="section" value="{{ old('section') }}" placeholder="e.g. BSIS 3A">
+          <select class="cs-select" id="section" name="section">
+            <option value="">Choose your section</option>
+            @foreach(\App\Models\User::SECTIONS as $section)
+              <option value="{{ $section }}" {{ old('section') === $section ? 'selected' : '' }}>{{ $section }}</option>
+            @endforeach
+          </select>
         </div>
       </div>
 
@@ -132,16 +149,22 @@
   </div>
 
   <script>
-    function toggleSectionField(role) {
+    function toggleStudentFields(role) {
+      const courseGroup = document.getElementById('course-group');
       const sectionGroup = document.getElementById('section-group');
-      if (role === 'teacher') {
-        sectionGroup.style.display = 'none';
-      } else {
-        sectionGroup.style.display = 'block';
-      }
+      const isStudent = role === 'student';
+
+      [courseGroup, sectionGroup].forEach(group => {
+        const field = group.querySelector('select');
+        group.style.display = isStudent ? 'block' : 'none';
+        field.disabled = !isStudent;
+        field.required = isStudent;
+      });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+      toggleStudentFields(document.getElementById('role').value);
+
       // Theme Toggle Handler
       const themeTrigger = document.querySelector('.cs-theme-toggle-trigger');
       if (themeTrigger) {

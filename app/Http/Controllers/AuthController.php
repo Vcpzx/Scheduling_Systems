@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -66,8 +67,9 @@ class AuthController extends Controller
             'user_id'  => 'required|string|max:50|unique:users,user_id',
             'name'     => 'required|string|max:255',
             'email'    => 'nullable|email|max:255|unique:users,email',
-            'section'  => 'nullable|string|max:50',
             'role'     => 'required|in:student,teacher',
+            'course'   => ['nullable', 'required_if:role,student', Rule::in(User::COURSES)],
+            'section'  => ['nullable', 'required_if:role,student', Rule::in(User::SECTIONS)],
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -75,7 +77,8 @@ class AuthController extends Controller
             'user_id'    => trim($data['user_id']),
             'name'       => trim($data['name']),
             'email'      => !empty($data['email']) ? trim($data['email']) : null,
-            'section'    => !empty($data['section']) ? trim($data['section']) : null,
+            'course'     => $data['role'] === 'student' ? $data['course'] : null,
+            'section'    => $data['role'] === 'student' ? $data['section'] : null,
             'role'       => $data['role'],
             'status'     => 'pending',
             'password'   => Hash::make($data['password']),

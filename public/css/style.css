@@ -320,6 +320,17 @@ a:hover {
   transition: opacity 0.2s ease;
 }
 
+.cs-nav-count {
+  margin-left: auto;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
 .cs-nav-item:hover {
   color: var(--primary);
   background: var(--primary-soft);
@@ -499,6 +510,11 @@ html.sidebar-collapsed .cs-navbar .cs-nav-label {
   display: none;
 }
 
+.cs-navbar.collapsed .cs-nav-count,
+html.sidebar-collapsed .cs-navbar .cs-nav-count {
+  display: none;
+}
+
 .cs-navbar.collapsed .cs-user-pill,
 html.sidebar-collapsed .cs-navbar .cs-user-pill {
   padding: 0.25rem 0;
@@ -658,60 +674,6 @@ html.dark .cs-upcoming-alert {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-}
-
-/* ==========================================================================
-   Tabs Navigation System
-   ========================================================================== */
-
-.cs-tabs-wrapper {
-  display: flex;
-  gap: 0.5rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 2rem;
-  padding-bottom: 2px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.cs-tab-btn {
-  padding: 0.65rem 1.15rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  border-bottom: 2px solid transparent;
-  text-decoration: none;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-}
-
-.cs-tab-btn:hover {
-  color: var(--primary);
-  background: var(--bg-muted);
-}
-
-.cs-tab-btn.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  background: var(--primary-soft);
-  font-weight: 700;
-}
-
-.cs-tab-count {
-  font-size: 0.75rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: var(--radius-full);
-  background: var(--bg-muted);
-  color: var(--text-muted);
-}
-
-.cs-tab-btn.active .cs-tab-count {
-  background: var(--primary);
-  color: #ffffff;
 }
 
 /* ==========================================================================
@@ -1399,6 +1361,7 @@ html.dark .cs-upcoming-alert {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0;
   }
 
   .cs-mobile-menu-btn {
@@ -1427,6 +1390,13 @@ html.dark .cs-upcoming-alert {
     font-weight: 700;
     color: var(--text-main);
     font-size: 1rem;
+    min-width: 0;
+  }
+
+  .cs-mobile-brand > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .cs-mobile-actions {
@@ -1473,6 +1443,70 @@ html.dark .cs-upcoming-alert {
 
   .cs-navbar.mobile-open {
     transform: translateX(0);
+  }
+
+  .cs-navbar.collapsed,
+  html.sidebar-collapsed .cs-navbar {
+    width: 280px;
+    max-width: 85vw;
+    padding: 1.25rem 1rem;
+  }
+
+  .cs-navbar.collapsed .cs-sidebar-header,
+  html.sidebar-collapsed .cs-navbar .cs-sidebar-header {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .cs-navbar.collapsed .cs-brand-text,
+  html.sidebar-collapsed .cs-navbar .cs-brand-text {
+    display: block;
+  }
+
+  .cs-navbar.collapsed .cs-nav-item,
+  html.sidebar-collapsed .cs-navbar .cs-nav-item {
+    justify-content: flex-start;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .cs-navbar.collapsed .cs-nav-label,
+  html.sidebar-collapsed .cs-navbar .cs-nav-label,
+  .cs-navbar.collapsed .cs-nav-count,
+  html.sidebar-collapsed .cs-navbar .cs-nav-count {
+    display: inline;
+  }
+
+  .cs-navbar.collapsed .cs-user-pill,
+  html.sidebar-collapsed .cs-navbar .cs-user-pill {
+    padding: 0.35rem 0.65rem;
+    background: var(--bg-muted);
+    border-color: var(--border);
+    justify-content: flex-start;
+  }
+
+  .cs-navbar.collapsed .cs-user-details,
+  html.sidebar-collapsed .cs-navbar .cs-user-details {
+    display: flex;
+  }
+
+  .cs-navbar.collapsed .cs-theme-toggle-btn,
+  html.sidebar-collapsed .cs-navbar .cs-theme-toggle-btn {
+    justify-content: flex-start;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .cs-navbar.collapsed .cs-theme-label,
+  html.sidebar-collapsed .cs-navbar .cs-theme-label,
+  .cs-navbar.collapsed .cs-logout-text,
+  html.sidebar-collapsed .cs-navbar .cs-logout-text {
+    display: inline;
+  }
+
+  .cs-navbar.collapsed .cs-logout-btn,
+  html.sidebar-collapsed .cs-navbar .cs-logout-btn {
+    padding: 0.5rem 0.75rem;
   }
 
   .cs-sidebar-backdrop {
@@ -1549,23 +1583,6 @@ html.dark .cs-upcoming-alert {
     gap: 1rem;
   }
 
-  .cs-tabs-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    flex-wrap: nowrap;
-    padding-bottom: 0.35rem;
-    scrollbar-width: none;
-  }
-  .cs-tabs-wrapper::-webkit-scrollbar {
-    display: none;
-  }
-
-  .cs-tab-btn {
-    flex-shrink: 0;
-    white-space: nowrap;
-    padding: 0.5rem 0.85rem;
-  }
-
   .cs-upcoming-alert {
     flex-direction: column;
     align-items: flex-start;
@@ -1584,6 +1601,12 @@ html.dark .cs-upcoming-alert {
     border-radius: 0;
     border-left: none;
     border-right: none;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .cs-admin-table {
+    min-width: 560px;
   }
 
   .cs-panel {

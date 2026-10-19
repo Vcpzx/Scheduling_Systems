@@ -10,6 +10,15 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    public const COURSES = ['BSIS', 'BSCS', 'BSIT'];
+
+    public const SECTIONS = [
+        '1A', '2A', '3A', '4A',
+        '1B', '2B', '3B', '4B',
+        '1C', '2C', '3C', '4C',
+        '1D', '2D', '3D', '4D',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +29,7 @@ class User extends Authenticatable
         'name',
         'email',
         'section',
+        'course',
         'department',
         'role',
         'status',
@@ -66,6 +76,13 @@ class User extends Authenticatable
         return $this->role === 'student';
     }
 
+    public function getCourseSectionAttribute(): ?string
+    {
+        $courseSection = trim(implode(' ', array_filter([$this->course, $this->section])));
+
+        return $courseSection !== '' ? $courseSection : null;
+    }
+
     public function bookingRequests()
     {
         return $this->hasMany(BookingRequest::class);
@@ -98,9 +115,10 @@ class User extends Authenticatable
             $query->where('recipient_type', 'all');
             if ($this->isStudent()) {
                 if ($this->section) {
-                    $query->orWhere(function ($q) {
+                    $section = $this->course_section;
+                    $query->orWhere(function ($q) use ($section) {
                         $q->where('recipient_type', 'section')
-                          ->where('target_section', $this->section);
+                          ->where('target_section', $section);
                     });
                 }
                 $query->orWhere(function ($q) {

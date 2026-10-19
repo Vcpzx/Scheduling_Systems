@@ -12,9 +12,14 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
+        $section = $request->validate([
+            'section' => 'sometimes|in:accounts,bookings,resources,notices',
+        ])['section'] ?? 'accounts';
+
         return view('admin.dashboard', [
+            'section' => $section,
             'pendingUsers' => User::where('status', 'pending')->latest()->get(),
             'pendingBookings' => BookingRequest::with(['user', 'resource'])->where('status', 'pending')->latest()->get(),
             'resources' => Resource::latest()->get(),

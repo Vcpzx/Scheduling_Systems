@@ -88,48 +88,78 @@
 
     <nav class="cs-nav-links">
       @if(Auth::user()->isTeacher())
-        <a href="{{ route('teacher.dashboard', ['tab' => 'schedule']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && (request('tab', 'schedule') == 'schedule') ? 'active' : '' }}" title="Subjects">
-          <span class="cs-nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          </span>
-          <span class="cs-nav-label">Subjects</span>
-        </a>
-        <a href="{{ route('teacher.dashboard', ['tab' => 'semesters']) }}" class="cs-nav-item {{ request('tab') == 'semesters' ? 'active' : '' }}" title="Semesters & Classes">
+        <a href="{{ route('teacher.dashboard', ['tab' => 'schedule']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab', 'schedule') === 'schedule' ? 'active' : '' }}" title="Class Timetable & Schedule">
           <span class="cs-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           </span>
-          <span class="cs-nav-label">Semesters & Classes</span>
+          <span class="cs-nav-label">Class Timetable & Schedule</span>
+          @isset($classSchedules)<span class="cs-nav-count">{{ $classSchedules->count() }}</span>@endisset
         </a>
-        <a href="{{ route('teacher.dashboard', ['tab' => 'room-requests']) }}" class="cs-nav-item {{ request('tab') == 'room-requests' ? 'active' : '' }}" title="Room Requests">
+        <a href="{{ route('teacher.dashboard', ['tab' => 'semesters']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab') === 'semesters' ? 'active' : '' }}" title="Semester Handling & Loads">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </span>
+          <span class="cs-nav-label">Semester Handling & Loads</span>
+        </a>
+        <a href="{{ route('teacher.dashboard', ['tab' => 'room-requests']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab') === 'room-requests' ? 'active' : '' }}" title="Room Requests">
           <span class="cs-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           </span>
           <span class="cs-nav-label">Room Requests</span>
         </a>
-        <a href="{{ route('teacher.dashboard', ['tab' => 'notifications']) }}" class="cs-nav-item {{ request('tab') == 'notifications' ? 'active' : '' }}" title="Notifications">
+        <a href="{{ route('teacher.dashboard', ['tab' => 'recent-requests']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab') === 'recent-requests' ? 'active' : '' }}" title="Recent Requests">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </span>
+          <span class="cs-nav-label">Recent Requests</span>
+          @isset($myBookings)<span class="cs-nav-count">{{ $myBookings->count() }}</span>@endisset
+        </a>
+        <a href="{{ route('teacher.dashboard', ['tab' => 'send-notification']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab') === 'send-notification' ? 'active' : '' }}" title="Notify Students">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </span>
+          <span class="cs-nav-label">Notify Students</span>
+        </a>
+        <a href="{{ route('teacher.dashboard', ['tab' => 'notifications']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab') === 'notifications' ? 'active' : '' }}" title="Inbox & Notices">
           <span class="cs-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           </span>
-          <span class="cs-nav-label">Notifications</span>
+          <span class="cs-nav-label">Inbox & Notices</span>
+          @isset($systemNotifications, $sentNotifications)<span class="cs-nav-count">{{ $systemNotifications->count() + $sentNotifications->count() }}</span>@endisset
+        </a>
+        <a href="{{ route('teacher.dashboard', ['tab' => 'profile']) }}" class="cs-nav-item {{ request()->routeIs('teacher.dashboard') && request('tab') === 'profile' ? 'active' : '' }}" title="Account Settings">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </span>
+          <span class="cs-nav-label">Account Settings</span>
         </a>
       @elseif(Auth::user()->isStudent())
-        <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-nav-item {{ request()->routeIs('student.dashboard') && (request('tab', 'schedule') == 'schedule') ? 'active' : '' }}" title="My Schedule">
+        <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-nav-item {{ request()->routeIs('student.dashboard') && request('tab', 'schedule') === 'schedule' ? 'active' : '' }}" title="My Class Schedule">
           <span class="cs-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           </span>
-          <span class="cs-nav-label">My Schedule</span>
+          <span class="cs-nav-label">My Class Schedule</span>
+          @isset($enrolledClasses)<span class="cs-nav-count">{{ $enrolledClasses->count() }}</span>@endisset
         </a>
-        <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-nav-item {{ request('tab') == 'registration' ? 'active' : '' }}" title="Subject Registration">
+        <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-nav-item {{ request()->routeIs('student.dashboard') && request('tab') === 'registration' ? 'active' : '' }}" title="Registration & Subjects">
           <span class="cs-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
           </span>
-          <span class="cs-nav-label">Subject Registration</span>
+          <span class="cs-nav-label">Registration & Subjects</span>
+          @isset($availableOfferings)<span class="cs-nav-count">{{ $availableOfferings->count() }}</span>@endisset
         </a>
-        <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-nav-item {{ request('tab') == 'notifications' ? 'active' : '' }}" title="Notifications">
+        <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-nav-item {{ request()->routeIs('student.dashboard') && request('tab') === 'notifications' ? 'active' : '' }}" title="Notifications Inbox">
           <span class="cs-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           </span>
-          <span class="cs-nav-label">Notifications</span>
+          <span class="cs-nav-label">Notifications Inbox</span>
+          @isset($directNotifications, $systemNotifications)<span class="cs-nav-count">{{ $directNotifications->count() + $systemNotifications->count() }}</span>@endisset
+        </a>
+        <a href="{{ route('student.dashboard', ['tab' => 'profile']) }}" class="cs-nav-item {{ request()->routeIs('student.dashboard') && request('tab') === 'profile' ? 'active' : '' }}" title="Account Settings">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </span>
+          <span class="cs-nav-label">Account Settings</span>
         </a>
       @endif
 
@@ -141,11 +171,31 @@
       </a>
 
       @if(Auth::user()->isAdmin())
-        <a href="{{ route('admin.dashboard') }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" title="Admin Workspace">
+        <a href="{{ route('admin.dashboard', ['section' => 'accounts']) }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section', 'accounts') === 'accounts' ? 'active' : '' }}" title="Accounts Awaiting Review">
           <span class="cs-nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg>
           </span>
-          <span class="cs-nav-label">Admin Workspace</span>
+          <span class="cs-nav-label">Accounts Awaiting Review</span>
+          @isset($pendingUsers)<span class="cs-nav-count">{{ $pendingUsers->count() }}</span>@endisset
+        </a>
+        <a href="{{ route('admin.dashboard', ['section' => 'bookings']) }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section') === 'bookings' ? 'active' : '' }}" title="Space Booking Requests">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"></path><path d="M5 6h14l2 14H3L5 6z"></path><path d="M9 10V6a3 3 0 0 1 6 0v4"></path></svg>
+          </span>
+          <span class="cs-nav-label">Space Booking Requests</span>
+          @isset($pendingBookings)<span class="cs-nav-count">{{ $pendingBookings->count() }}</span>@endisset
+        </a>
+        <a href="{{ route('admin.dashboard', ['section' => 'resources']) }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section') === 'resources' ? 'active' : '' }}" title="Campus Resources Management">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path></svg>
+          </span>
+          <span class="cs-nav-label">Campus Resources Management</span>
+        </a>
+        <a href="{{ route('admin.dashboard', ['section' => 'notices']) }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section') === 'notices' ? 'active' : '' }}" title="Broadcast Global Notice">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5-5 18-4-8-9-5z"></path><path d="m12 16 4-4"></path></svg>
+          </span>
+          <span class="cs-nav-label">Broadcast Global Notice</span>
         </a>
       @endif
     </nav>
@@ -180,7 +230,7 @@
         </div>
         <div class="cs-user-details">
           <span class="cs-user-name">{{ Auth::user()->name }}</span>
-          <span class="cs-user-role">{{ Auth::user()->user_id }} · {{ ucfirst(Auth::user()->role) }}{{ Auth::user()->section ? ' ('.Auth::user()->section.')' : '' }}</span>
+          <span class="cs-user-role">{{ Auth::user()->user_id }} · {{ ucfirst(Auth::user()->role) }}{{ Auth::user()->course_section ? ' ('.Auth::user()->course_section.')' : '' }}</span>
         </div>
       </div>
 

@@ -1,19 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Workspace | Campus Scheduler')
+@php
+  $sectionTitles = [
+    'accounts' => 'Accounts Awaiting Review',
+    'bookings' => 'Space Booking Requests',
+    'resources' => 'Campus Resources Management',
+    'notices' => 'Broadcast Global Notice',
+  ];
+@endphp
+
+@section('title', $sectionTitles[$section].' | Campus Scheduler')
 
 @section('content')
 <div class="cs-header-banner">
   <div>
-    <h1>Admin Workspace</h1>
-    <p>Manage account registrations, approve space reservations, configure campus resources, and broadcast system notifications.</p>
+    <h1>{{ $sectionTitles[$section] }}</h1>
+    <p>Admin Workspace</p>
   </div>
   <div>
     <span class="cs-badge cs-badge-approved" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Admin Mode Active</span>
   </div>
 </div>
 
-<div class="cs-grid-2" style="align-items: start; margin-bottom: 2rem;">
+@if($section === 'accounts')
   {{-- Pending User Accounts --}}
   <div class="cs-panel">
     <div class="cs-panel-header">
@@ -28,7 +37,7 @@
       <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No accounts currently pending approval.</p>
     @else
       <div class="cs-table-container">
-        <table class="cs-table">
+        <table class="cs-table cs-admin-table">
           <thead>
             <tr>
               <th>User Info</th>
@@ -41,7 +50,7 @@
               <tr>
                 <td>
                   <strong>{{ $user->name }}</strong>
-                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ $user->user_id }}{{ $user->section ? ' · '.$user->section : '' }}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ $user->user_id }}{{ $user->course_section ? ' · '.$user->course_section : '' }}</div>
                   @if($user->email)<div style="font-size: 0.75rem; color: var(--text-light);">{{ $user->email }}</div>@endif
                 </td>
                 <td>
@@ -75,7 +84,9 @@
       </div>
     @endif
   </div>
+@endif
 
+@if($section === 'bookings')
   {{-- Pending Booking Requests --}}
   <div class="cs-panel">
     <div class="cs-panel-header">
@@ -90,7 +101,7 @@
       <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No pending booking requests in the queue.</p>
     @else
       <div class="cs-table-container">
-        <table class="cs-table">
+        <table class="cs-table cs-admin-table">
           <thead>
             <tr>
               <th>Resource & Teacher</th>
@@ -132,9 +143,9 @@
       </div>
     @endif
   </div>
-</div>
+@endif
 
-<div class="cs-grid-2" style="align-items: start;">
+@if($section === 'resources')
   {{-- Campus Resources Management --}}
   <div class="cs-panel">
     <div class="cs-panel-header">
@@ -177,7 +188,7 @@
     </form>
 
     <div class="cs-table-container">
-      <table class="cs-table">
+      <table class="cs-table cs-admin-table">
         <thead>
           <tr>
             <th>Resource</th>
@@ -206,7 +217,9 @@
       </table>
     </div>
   </div>
+@endif
 
+@if($section === 'notices')
   {{-- Global System Notices --}}
   <div class="cs-panel">
     <div class="cs-panel-header">
@@ -244,5 +257,5 @@
       @endforelse
     </div>
   </div>
-</div>
+@endif
 @endsection

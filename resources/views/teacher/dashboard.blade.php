@@ -73,41 +73,6 @@
   </div>
 @endif
 
-{{-- Sub-Navigation Tabs --}}
-<div class="cs-tabs-wrapper">
-  <a href="{{ route('teacher.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-    <span>Class Timetable & Schedule</span>
-    <span class="cs-tab-count">{{ $classSchedules->count() }}</span>
-  </a>
-  <a href="{{ route('teacher.dashboard', ['tab' => 'semesters']) }}" class="cs-tab-btn {{ $tab === 'semesters' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-    <span>Semester Handling & Loads</span>
-  </a>
-  <a href="{{ route('teacher.dashboard', ['tab' => 'room-requests']) }}" class="cs-tab-btn {{ $tab === 'room-requests' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-    <span>Room Requests</span>
-  </a>
-  <a href="{{ route('teacher.dashboard', ['tab' => 'recent-requests']) }}" class="cs-tab-btn {{ $tab === 'recent-requests' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-    <span>Recent Requests</span>
-    <span class="cs-tab-count">{{ $myBookings->count() }}</span>
-  </a>
-  <a href="{{ route('teacher.dashboard', ['tab' => 'send-notification']) }}" class="cs-tab-btn {{ $tab === 'send-notification' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    <span>Notify Students</span>
-  </a>
-  <a href="{{ route('teacher.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-    <span>Inbox & Notices</span>
-    <span class="cs-tab-count">{{ $systemNotifications->count() + $sentNotifications->count() }}</span>
-  </a>
-  <a href="{{ route('teacher.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-    <span>Account Settings</span>
-  </a>
-</div>
-
 {{-- TAB 1: SCHEDULE CARDS & TIMETABLE --}}
 @if($tab === 'schedule')
   <div class="cs-panel">

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -16,15 +18,17 @@ class ProfileController extends Controller
             'name'        => 'required|string|max:255',
             'user_id'     => 'required|string|max:50|unique:users,user_id,'.$user->id,
             'email'       => 'nullable|email|max:255|unique:users,email,'.$user->id,
-            'section'     => 'nullable|string|max:50',
             'department'  => 'nullable|string|max:255',
+            'course'      => $user->isStudent() ? ['required', Rule::in(User::COURSES)] : 'nullable',
+            'section'     => $user->isStudent() ? ['required', Rule::in(User::SECTIONS)] : 'nullable',
         ]);
 
         $user->update([
             'name'       => trim($data['name']),
             'user_id'    => trim($data['user_id']),
             'email'      => !empty($data['email']) ? trim($data['email']) : null,
-            'section'    => !empty($data['section']) ? trim($data['section']) : null,
+            'course'     => $user->isStudent() ? $data['course'] : null,
+            'section'    => $user->isStudent() ? $data['section'] : null,
             'department' => !empty($data['department']) ? trim($data['department']) : null,
         ]);
 

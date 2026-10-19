@@ -6,7 +6,7 @@
 <div class="cs-header-banner">
   <div>
     <h1>Student Dashboard</h1>
-    <p>Welcome back, <strong>{{ $student->name }}</strong> ({{ $student->user_id }}{{ $student->section ? ' · Section '.$student->section : '' }}). View your class timetable, enrolled subjects, and announcements.</p>
+    <p>Welcome back, <strong>{{ $student->name }}</strong> ({{ $student->user_id }}{{ $student->course_section ? ' · '.$student->course_section : '' }}). View your class timetable, enrolled subjects, and announcements.</p>
   </div>
   <div>
     <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-button">
@@ -76,29 +76,6 @@
     </div>
   </div>
 @endif
-
-{{-- Sub-Navigation Tabs --}}
-<div class="cs-tabs-wrapper">
-  <a href="{{ route('student.dashboard', ['tab' => 'schedule']) }}" class="cs-tab-btn {{ $tab === 'schedule' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-    <span>My Class Schedule</span>
-    <span class="cs-tab-count">{{ $enrolledClasses->count() }}</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'registration']) }}" class="cs-tab-btn {{ $tab === 'registration' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
-    <span>Registration & Subjects</span>
-    <span class="cs-tab-count">{{ count($availableOfferings) }}</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'notifications']) }}" class="cs-tab-btn {{ $tab === 'notifications' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-    <span>Notifications Inbox</span>
-    <span class="cs-tab-count">{{ $directNotifications->count() + $systemNotifications->count() }}</span>
-  </a>
-  <a href="{{ route('student.dashboard', ['tab' => 'profile']) }}" class="cs-tab-btn {{ $tab === 'profile' ? 'active' : '' }}">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-    <span>Account Settings</span>
-  </a>
-</div>
 
 {{-- TAB 1: MY SCHEDULE --}}
 @if($tab === 'schedule')
@@ -209,14 +186,25 @@
       <form method="POST" action="{{ route('student.enroll.section') }}" class="cs-form-grid">
         @csrf
 
-        <div class="cs-form-group">
-          <label class="cs-form-label" for="reg_section">Select Your Class Section</label>
-          <select class="cs-select" id="reg_section" name="section" required>
-            <option value="">Choose your class section</option>
-            @foreach($availableSections as $sec)
-              <option value="{{ $sec }}" {{ $student->section === $sec ? 'selected' : '' }}>{{ $sec }}</option>
-            @endforeach
-          </select>
+        <div class="cs-grid-2">
+          <div class="cs-form-group">
+            <label class="cs-form-label" for="reg_course">Course</label>
+            <select class="cs-select" id="reg_course" name="course" required>
+              <option value="">Choose your course</option>
+              @foreach(\App\Models\User::COURSES as $course)
+                <option value="{{ $course }}" {{ old('course', $student->course) === $course ? 'selected' : '' }}>{{ $course }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="cs-form-group">
+            <label class="cs-form-label" for="reg_section">Class Section</label>
+            <select class="cs-select" id="reg_section" name="section" required>
+              <option value="">Choose your section</option>
+              @foreach(\App\Models\User::SECTIONS as $section)
+                <option value="{{ $section }}" {{ old('section', $student->section) === $section ? 'selected' : '' }}>{{ $section }}</option>
+              @endforeach
+            </select>
+          </div>
         </div>
 
         <div class="cs-grid-2">
@@ -305,7 +293,7 @@
       <div class="cs-panel-header">
         <div>
           <h2 class="cs-panel-title">Teacher Announcements</h2>
-          <p class="cs-panel-subtitle">Notices for your section ({{ $student->section ?? 'General' }}) or sent directly to you</p>
+          <p class="cs-panel-subtitle">Notices for your section ({{ $student->course_section ?? 'General' }}) or sent directly to you</p>
         </div>
       </div>
 
@@ -425,7 +413,7 @@
     <div class="cs-panel-header">
       <div>
         <h2 class="cs-panel-title">Account Settings</h2>
-        <p class="cs-panel-subtitle">Update your student information, class section, email, and password</p>
+        <p class="cs-panel-subtitle">Update your student information, course, section, email, and password</p>
       </div>
     </div>
 
@@ -443,9 +431,26 @@
           <label class="cs-form-label" for="stu_user_id">Student ID</label>
           <input class="cs-input" id="stu_user_id" name="user_id" value="{{ old('user_id', $student->user_id) }}" required>
         </div>
+      </div>
+
+      <div class="cs-grid-2">
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="stu_course">Course</label>
+          <select class="cs-select" id="stu_course" name="course" required>
+            <option value="">Choose your course</option>
+            @foreach(\App\Models\User::COURSES as $course)
+              <option value="{{ $course }}" {{ old('course', $student->course) === $course ? 'selected' : '' }}>{{ $course }}</option>
+            @endforeach
+          </select>
+        </div>
         <div class="cs-form-group">
           <label class="cs-form-label" for="stu_section">Class Section</label>
-          <input class="cs-input" id="stu_section" name="section" value="{{ old('section', $student->section) }}" placeholder="e.g. BSIS 3A">
+          <select class="cs-select" id="stu_section" name="section" required>
+            <option value="">Choose your section</option>
+            @foreach(\App\Models\User::SECTIONS as $section)
+              <option value="{{ $section }}" {{ old('section', $student->section) === $section ? 'selected' : '' }}>{{ $section }}</option>
+            @endforeach
+          </select>
         </div>
       </div>
 

@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class StudentDashboardController extends Controller
 {
@@ -50,9 +51,6 @@ class StudentDashboardController extends Controller
             ->orderBy('subject_code')
             ->get();
 
-        // Available unique sections in the system
-        $availableSections = ClassSchedule::pluck('section')->unique()->values();
-
         // Enrolled class schedule IDs for quick lookup
         $enrolledScheduleIds = $enrolledClasses->pluck('id')->toArray();
 
@@ -89,7 +87,6 @@ class StudentDashboardController extends Controller
             'selectedSemester',
             'selectedYear',
             'availableOfferings',
-            'availableSections',
             'systemNotifications',
             'directNotifications',
             'scheduleDate',
@@ -121,17 +118,18 @@ class StudentDashboardController extends Controller
     public function enrollSection(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'section'       => 'required|string',
+            'course'        => ['required', Rule::in(User::COURSES)],
+            'section'       => ['required', Rule::in(User::SECTIONS)],
             'semester'      => 'nullable|string',
             'academic_year' => 'nullable|string',
         ]);
 
         $student = $request->user();
         $section = trim($data['section']);
+        $course = $data['course'];
+        $courseSection = "{$course} {$section}";
 
-        $student->update(['section' => $section]);
-
-        $query = ClassSchedule::where('section', $section);
+        $query = ClassSchedule::where('section', $courseSection);
         if (!empty($data['semester']) && $data['semester'] !== 'all') {
             $query->where('semester', $data['semester']);
         }
@@ -143,8 +141,13 @@ class StudentDashboardController extends Controller
 
         if ($schedules->isEmpty()) {
             return redirect()->route('student.dashboard', ['tab' => 'registration'])
-                ->with('error', "No class schedules found for section {$section}.");
+                ->with('error', "No class schedules found for section {$courseSection}.");
         }
+
+        $student->update([
+            'course' => $course,
+            'section' => $section,
+        ]);
 
         $count = 0;
         foreach ($schedules as $schedule) {
@@ -158,7 +161,7 @@ class StudentDashboardController extends Controller
         }
 
         return redirect()->route('student.dashboard', ['tab' => 'schedule'])
-            ->with('success', "Successfully registered in Section {$section}! {$count} class schedules were added to your timetable.");
+            ->with('success', "Successfully registered in Section {$courseSection}! {$count} class schedules were added to your timetable.");
     }
 
     public function unenroll(ClassSchedule $classSchedule): RedirectResponse

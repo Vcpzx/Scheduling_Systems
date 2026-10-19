@@ -64,7 +64,22 @@ class TeacherDashboardController extends Controller
 
         // Students in teacher's sections for targeted notifications
         $studentsInMySections = User::where('role', 'student')
-            ->whereIn('section', $sectionsHandled)
+            ->where(function ($query) use ($sectionsHandled) {
+                if ($sectionsHandled->isEmpty()) {
+                    $query->whereRaw('1 = 0');
+                }
+
+                foreach ($sectionsHandled as $section) {
+                    if (preg_match('/^(BSIS|BSCS|BSIT)\s+([1-4][A-D])$/i', $section, $matches)) {
+                        $query->orWhere(function ($studentQuery) use ($matches) {
+                            $studentQuery->where('course', strtoupper($matches[1]))
+                                ->where('section', strtoupper($matches[2]));
+                        });
+                    } else {
+                        $query->orWhere('section', $section);
+                    }
+                }
+            })
             ->orderBy('name')
             ->get();
 
