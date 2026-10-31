@@ -1,34 +1,47 @@
-FROM php:8.2-fpm
+FROM node:22-alpine AS frontend
 
-# Install system dependencies and PHP extensions
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM php:8.2-cli
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev \
+    libpng-dev \
+    libpq-dev \
     libxml2-dev \
     libzip-dev \
-    zip \
     unzip \
-    libpq-dev \
-    nginx
+    && docker-php-ext-install \
+    bcmath \
+    exif \
+    gd \
+    mbstring \
+    pcntl \
+    pdo_pgsql \
+    zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
 COPY . .
+COPY --from=frontend /app/public/build ./public/build
 
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+RUN composer dump-autoload --no-dev --optimize --no-interaction \
+    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views \
+    && chown -R www-data:www-data storage bootstrap/cache
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+USER www-data
 
-EXPOSE 80
+EXPOSE 10000
 
-# Run migrations and start server without pre-caching invalid local configs
-CMD php artisan config:clear && php artisan migrate:fresh --seed --force && php artisan serve --host=0.0.0.0 --port=80
+CMD ["sh", "-c", "php artisan migrate --force && php artisan config:cache && php artisan view:cache && exec php artisan serve --host=0.0.0.0 --port=\"${PORT:-10000}\""]
