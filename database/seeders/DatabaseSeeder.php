@@ -16,9 +16,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Default Administrator
-        $admin = User::create([
-            'user_id'    => 'SEC-001',
+        // 1. Default Administrator (created only if missing, so a changed password is never reset)
+        $admin = User::firstOrCreate(['user_id' => 'SEC-001'], [
             'name'       => 'Registrar & Admin Office',
             'email'      => 'admin@campus.edu',
             'password'   => Hash::make('admin123'),
@@ -28,8 +27,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2. Sample Teachers
-        $teacher1 = User::create([
-            'user_id'    => 'T-101',
+        $teacher1 = User::firstOrCreate(['user_id' => 'T-101'], [
             'name'       => 'Prof. Alan Turing',
             'email'      => 'aturing@campus.edu',
             'password'   => Hash::make('teacher123'),
@@ -38,8 +36,7 @@ class DatabaseSeeder extends Seeder
             'department' => 'College of Computer Studies',
         ]);
 
-        $teacher2 = User::create([
-            'user_id'    => 'T-102',
+        $teacher2 = User::firstOrCreate(['user_id' => 'T-102'], [
             'name'       => 'Prof. Ada Lovelace',
             'email'      => 'alovelace@campus.edu',
             'password'   => Hash::make('teacher123'),
@@ -49,8 +46,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 3. Sample Students
-        $student1 = User::create([
-            'user_id'    => 'S-201',
+        $student1 = User::firstOrCreate(['user_id' => 'S-201'], [
             'name'       => 'John Doe',
             'email'      => 'jdoe@campus.edu',
             'course'     => 'BSIS',
@@ -61,8 +57,7 @@ class DatabaseSeeder extends Seeder
             'department' => 'College of Computer Studies',
         ]);
 
-        $student2 = User::create([
-            'user_id'    => 'S-202',
+        $student2 = User::firstOrCreate(['user_id' => 'S-202'], [
             'name'       => 'Jane Smith',
             'email'      => 'jsmith@campus.edu',
             'course'     => 'BSIS',
@@ -73,8 +68,7 @@ class DatabaseSeeder extends Seeder
             'department' => 'College of Computer Studies',
         ]);
 
-        $student3 = User::create([
-            'user_id'    => 'S-203',
+        $student3 = User::firstOrCreate(['user_id' => 'S-203'], [
             'name'       => 'Alex Cruz',
             'email'      => 'acruz@campus.edu',
             'course'     => 'BSCS',
@@ -86,8 +80,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Pending user for admin testing
-        User::create([
-            'user_id'    => 'S-204',
+        User::firstOrCreate(['user_id' => 'S-204'], [
             'name'       => 'Samantha Wells',
             'email'      => 'swells@campus.edu',
             'course'     => 'BSIS',
@@ -96,6 +89,11 @@ class DatabaseSeeder extends Seeder
             'role'       => 'student',
             'status'     => 'pending',
         ]);
+
+        // Sample data was already seeded on a previous deploy, so stop here
+        if (Resource::exists()) {
+            return;
+        }
 
         // 4. Sample Resources
         $room204 = Resource::create(['name' => 'Room 204', 'type' => 'room', 'location' => 'Building B, 2nd Floor', 'capacity' => 45]);
