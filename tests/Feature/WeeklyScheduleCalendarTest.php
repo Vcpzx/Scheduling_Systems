@@ -248,7 +248,14 @@ class WeeklyScheduleCalendarTest extends TestCase
             ->assertSee('Room Request Status')
             ->assertSee('Recent Room Requests')
             ->assertSee('1 student enrollments')
-            ->assertSee('title="Admin Dashboard"', false);
+            ->assertSee('title="Admin Dashboard"', false)
+            ->assertSee('cs-nav-item active" title="Admin Dashboard"', false)
+            ->assertDontSee('cs-nav-item active" title="Accounts Awaiting Review"', false);
+
+        $this->get(route('admin.dashboard', ['section' => 'accounts']))
+            ->assertOk()
+            ->assertSee('cs-nav-item active" title="Accounts Awaiting Review"', false)
+            ->assertDontSee('cs-nav-item active" title="Admin Dashboard"', false);
 
         $this->get(route('home'))->assertRedirect(route('admin.dashboard'));
     }
