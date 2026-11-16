@@ -22,9 +22,11 @@
       }
 
       // Immediate Sidebar Pre-render Check
-      if (localStorage.getItem('cs_sidebar_collapsed') === 'true') {
-        document.documentElement.classList.add('sidebar-collapsed');
-      }
+      @if(!Auth::check() || !Auth::user()->isTeacher())
+        if (localStorage.getItem('cs_sidebar_collapsed') === 'true') {
+          document.documentElement.classList.add('sidebar-collapsed');
+        }
+      @endif
     })();
   </script>
 </head>
@@ -40,7 +42,7 @@
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
-      <a href="{{ Auth::user()->isAdmin() ? route('schedule.index') : (Auth::user()->isTeacher() ? route('teacher.dashboard') : route('student.dashboard')) }}" class="cs-mobile-brand">
+      <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : (Auth::user()->isTeacher() ? route('teacher.dashboard') : route('student.dashboard')) }}" class="cs-mobile-brand">
         <span class="cs-logo-badge">CS</span>
         <span>Campus Scheduler</span>
       </a>
@@ -75,15 +77,17 @@
   <!-- Vertical Collapsible Sidebar -->
   <header class="cs-navbar">
     <div class="cs-sidebar-header">
-      <a href="{{ Auth::user()->isAdmin() ? route('schedule.index') : (Auth::user()->isTeacher() ? route('teacher.dashboard') : route('student.dashboard')) }}" class="cs-brand" title="Campus Scheduler">
+      <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : (Auth::user()->isTeacher() ? route('teacher.dashboard') : route('student.dashboard')) }}" class="cs-brand" title="Campus Scheduler">
         <span class="cs-logo-badge">CS</span>
         <span class="cs-brand-text">Campus Scheduler</span>
       </a>
-      <button type="button" class="cs-sidebar-toggle" id="csSidebarToggle" title="Collapse / Expand Sidebar" aria-label="Toggle Sidebar">
-        <svg class="cs-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
+      @if(!Auth::user()->isTeacher())
+        <button type="button" class="cs-sidebar-toggle" id="csSidebarToggle" title="Collapse / Expand Sidebar" aria-label="Toggle Sidebar">
+          <svg class="cs-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+      @endif
     </div>
 
     <nav class="cs-nav-links">
@@ -163,12 +167,20 @@
         </a>
       @endif
 
-      <a href="{{ route('schedule.index') }}" class="cs-nav-item {{ request()->routeIs('schedule.index') ? 'active' : '' }}" title="Schedules">
-        <span class="cs-nav-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        </span>
-        <span class="cs-nav-label">Schedules</span>
-      </a>
+      @if(Auth::user()->isAdmin())
+        <a href="{{ route('admin.dashboard') }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section', 'dashboard') === 'dashboard' ? 'active' : '' }}" title="Admin Dashboard">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+          </span>
+          <span class="cs-nav-label">Dashboard</span>
+        </a>
+        <a href="{{ route('schedule.index') }}" class="cs-nav-item {{ request()->routeIs('schedule.index') ? 'active' : '' }}" title="Schedules">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </span>
+          <span class="cs-nav-label">Schedules</span>
+        </a>
+      @endif
 
       @if(Auth::user()->isAdmin())
         <a href="{{ route('admin.dashboard', ['section' => 'accounts']) }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section', 'accounts') === 'accounts' ? 'active' : '' }}" title="Accounts Awaiting Review">
@@ -196,6 +208,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5-5 18-4-8-9-5z"></path><path d="m12 16 4-4"></path></svg>
           </span>
           <span class="cs-nav-label">Broadcast Global Notice</span>
+        </a>
+        <a href="{{ route('admin.dashboard', ['section' => 'terms']) }}" class="cs-nav-item {{ request()->routeIs('admin.dashboard') && request('section') === 'terms' ? 'active' : '' }}" title="Academic Term Dates">
+          <span class="cs-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+          </span>
+          <span class="cs-nav-label">Academic Term Dates</span>
         </a>
       @endif
     </nav>
@@ -294,23 +312,25 @@
       const navbar = document.querySelector('.cs-navbar');
 
       if (navbar) {
-        if (localStorage.getItem('cs_sidebar_collapsed') === 'true') {
-          navbar.classList.add('collapsed');
-          document.documentElement.classList.add('sidebar-collapsed');
-        }
+        @if(!Auth::user()->isTeacher())
+          if (localStorage.getItem('cs_sidebar_collapsed') === 'true') {
+            navbar.classList.add('collapsed');
+            document.documentElement.classList.add('sidebar-collapsed');
+          }
 
-        if (sidebarToggle) {
-          sidebarToggle.addEventListener('click', function () {
-            navbar.classList.toggle('collapsed');
-            const isCollapsed = navbar.classList.contains('collapsed');
-            localStorage.setItem('cs_sidebar_collapsed', isCollapsed ? 'true' : 'false');
-            if (isCollapsed) {
-              document.documentElement.classList.add('sidebar-collapsed');
-            } else {
-              document.documentElement.classList.remove('sidebar-collapsed');
-            }
-          });
-        }
+          if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function () {
+              navbar.classList.toggle('collapsed');
+              const isCollapsed = navbar.classList.contains('collapsed');
+              localStorage.setItem('cs_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+              if (isCollapsed) {
+                document.documentElement.classList.add('sidebar-collapsed');
+              } else {
+                document.documentElement.classList.remove('sidebar-collapsed');
+              }
+            });
+          }
+        @endif
       }
 
       // 3. Mobile Off-Canvas Drawer Navigation

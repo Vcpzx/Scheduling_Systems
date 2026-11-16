@@ -60,5 +60,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/resources/{resource}', [AdminController::class, 'updateResource'])->name('resources.update');
         Route::delete('/resources/{resource}', [AdminController::class, 'deleteResource'])->name('resources.delete');
         Route::post('/notifications', [AdminController::class, 'storeNotification'])->name('notifications.store');
+        Route::post('/academic-terms', [AdminController::class, 'storeAcademicTerm'])->name('academic-terms.store');
+        Route::put('/academic-terms/{academicTerm}', [AdminController::class, 'updateAcademicTerm'])->name('academic-terms.update');
     });
 });

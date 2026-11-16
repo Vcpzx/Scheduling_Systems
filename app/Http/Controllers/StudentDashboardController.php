@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicTerm;
 use App\Models\BookingRequest;
 use App\Models\ClassSchedule;
 use App\Models\Resource;
@@ -9,6 +10,7 @@ use App\Models\StudentEnrollment;
 use App\Models\SystemNotification;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Support\WeeklyScheduleCalendar;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,11 +24,18 @@ class StudentDashboardController extends Controller
         $student = $request->user();
         $tab = $request->get('tab', 'schedule');
 
-        // Get student's enrolled class schedules
-        $enrolledClasses = $student->enrolledClasses()
+        $calendarTerm = AcademicTerm::current();
+        $allEnrolledClasses = $student->enrolledClasses()
             ->with(['teacher', 'resource'])
             ->orderBy('start_time')
             ->get();
+        $enrolledClasses = $calendarTerm
+            ? $allEnrolledClasses
+                ->where('semester', $calendarTerm->semester)
+                ->where('academic_year', $calendarTerm->academic_year)
+                ->values()
+            : collect();
+        $enrolledScheduleIds = $allEnrolledClasses->pluck('id')->toArray();
 
         // Calculate active current class and upcoming class for the student
         $now = Carbon::now();
@@ -41,8 +50,8 @@ class StudentDashboardController extends Controller
         $upcomingClass = $todayClasses->first(fn($cs) => $cs->isUpcomingToday() || $cs->isStartingSoon());
 
         // Available classes for enrollment (grouped by section and semester)
-        $selectedSemester = $request->get('semester', '1st Semester');
-        $selectedYear = $request->get('academic_year', '2026-2027');
+        $selectedSemester = $request->get('semester', $calendarTerm?->semester ?? '1st Semester');
+        $selectedYear = $request->get('academic_year', $calendarTerm?->academic_year ?? '2026-2027');
 
         $availableOfferings = ClassSchedule::with(['teacher', 'resource'])
             ->when($selectedSemester !== 'all', fn($q) => $q->where('semester', $selectedSemester))
@@ -50,9 +59,6 @@ class StudentDashboardController extends Controller
             ->orderBy('section')
             ->orderBy('subject_code')
             ->get();
-
-        // Enrolled class schedule IDs for quick lookup
-        $enrolledScheduleIds = $enrolledClasses->pluck('id')->toArray();
 
         // Student Notifications Inbox
         $systemNotifications = SystemNotification::latest()->take(10)->get();
@@ -76,6 +82,20 @@ class StudentDashboardController extends Controller
             ->where('status', 'approved')
             ->get();
 
+        $calendarWeekDate = $request->validate(['week' => 'nullable|date'])['week'] ?? now()->toDateString();
+        $calendarWeekStart = Carbon::parse($calendarWeekDate)->startOfWeek(Carbon::MONDAY);
+        $calendarRoomId = $request->validate(['room_id' => 'nullable|integer|exists:resources,id'])['room_id'] ?? null;
+        $calendarResources = Resource::whereIn('type', ['room', 'lab'])->orderBy('name')->get();
+        $calendarSchedules = $enrolledClasses;
+        if ($calendarRoomId) {
+            $calendarResource = $calendarResources->firstWhere('id', (int) $calendarRoomId);
+            $calendarSchedules = $calendarSchedules->filter(function ($schedule) use ($calendarRoomId, $calendarResource) {
+                return (string) $schedule->resource_id === (string) $calendarRoomId
+                    || ($calendarResource && $schedule->room_name === $calendarResource->name);
+            })->values();
+        }
+        $calendarDays = WeeklyScheduleCalendar::build($calendarSchedules, $calendarWeekStart);
+
         return view('student.dashboard', compact(
             'student',
             'tab',
@@ -92,7 +112,12 @@ class StudentDashboardController extends Controller
             'scheduleDate',
             'scheduleType',
             'scheduleResources',
-            'campusBookings'
+            'campusBookings',
+            'calendarTerm',
+            'calendarWeekStart',
+            'calendarRoomId',
+            'calendarResources',
+            'calendarDays'
         ));
     }
 

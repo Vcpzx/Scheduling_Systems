@@ -6,7 +6,7 @@
 <div class="cs-header-banner">
   <div>
     <h1>Master Campus Schedule</h1>
-    <p>Browse live room bookings, classroom assignments, and resource occupancy across campus facilities.</p>
+    <p>View the weekly class timetable and check room availability across campus.</p>
   </div>
   <div>
     @if(Auth::user()->isTeacher())
@@ -23,6 +23,12 @@
   </div>
 </div>
 
+@include('components.weekly-schedule-calendar', [
+  'calendarRouteName' => 'schedule.index',
+  'calendarRouteParameters' => [],
+])
+
+@unless(Auth::user()->isAdmin())
 <div class="cs-panel">
   <div class="cs-panel-header">
     <div>
@@ -77,4 +83,5 @@
     </div>
   </div>
 </div>
+@endunless
 @endsection

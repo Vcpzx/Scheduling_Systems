@@ -150,7 +150,7 @@ class AuthController extends Controller
     private function redirectBasedOnRole(User $user)
     {
         if ($user->isAdmin()) {
-            return redirect()->route('schedule.index');
+            return redirect()->route('admin.dashboard');
         }
         if ($user->isTeacher()) {
             return redirect()->route('teacher.dashboard', ['tab' => 'schedule']);

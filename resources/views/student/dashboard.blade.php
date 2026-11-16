@@ -79,6 +79,11 @@
 
 {{-- TAB 1: MY SCHEDULE --}}
 @if($tab === 'schedule')
+  @include('components.weekly-schedule-calendar', [
+    'calendarRouteName' => 'student.dashboard',
+    'calendarRouteParameters' => ['tab' => 'schedule'],
+  ])
+
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>

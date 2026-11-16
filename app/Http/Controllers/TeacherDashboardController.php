@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicTerm;
 use App\Models\BookingRequest;
 use App\Models\ClassSchedule;
 use App\Models\Resource;
 use App\Models\SystemNotification;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Support\RoomAvailability;
+use App\Support\WeeklyScheduleCalendar;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class TeacherDashboardController extends Controller
 {
@@ -19,13 +23,14 @@ class TeacherDashboardController extends Controller
     {
         $teacher = $request->user();
         $tab = $request->get('tab', 'schedule');
+        $calendarTerm = AcademicTerm::current();
 
         // Resources for room booking & schedule creation
         $resources = Resource::orderBy('name')->get();
 
         // Teacher's class schedules (Semester Handling)
-        $selectedSemester = $request->get('semester', '1st Semester');
-        $selectedYear = $request->get('academic_year', '2026-2027');
+        $selectedSemester = $request->get('semester', $calendarTerm?->semester ?? '1st Semester');
+        $selectedYear = $request->get('academic_year', $calendarTerm?->academic_year ?? '2026-2027');
 
         $classSchedules = ClassSchedule::with(['resource', 'students'])
             ->where('teacher_id', $teacher->id)
@@ -34,7 +39,11 @@ class TeacherDashboardController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        $allTeachingLoads = ClassSchedule::where('teacher_id', $teacher->id)->get();
+        $allTeachingLoads = ClassSchedule::where('teacher_id', $teacher->id)
+            ->when($calendarTerm, fn ($query) => $query
+                ->where('semester', $calendarTerm->semester)
+                ->where('academic_year', $calendarTerm->academic_year))
+            ->get();
         $sectionsHandled = $allTeachingLoads->pluck('section')->unique()->values();
 
         // Calculate upcoming / current classes for Teacher
@@ -98,6 +107,49 @@ class TeacherDashboardController extends Controller
             ->where('status', 'approved')
             ->get();
 
+        $bookingDate = now()->toDateString();
+        $bookingStartTime = '09:00';
+        $bookingEndTime = '11:00';
+        $availableRoomResources = collect();
+        if ($tab === 'room-requests') {
+            $availabilityInput = $request->validate([
+                'date' => 'sometimes|required|date|after_or_equal:today',
+                'start_time' => 'sometimes|required|date_format:H:i',
+                'end_time' => 'sometimes|required|date_format:H:i|after:start_time',
+            ]);
+            $bookingDate = $availabilityInput['date'] ?? $bookingDate;
+            $bookingStartTime = $availabilityInput['start_time'] ?? $bookingStartTime;
+            $bookingEndTime = $availabilityInput['end_time'] ?? $bookingEndTime;
+            $availableRoomResources = $resources
+                ->filter(fn (Resource $resource) => RoomAvailability::isAvailable(
+                    $resource,
+                    $bookingDate,
+                    $bookingStartTime,
+                    $bookingEndTime
+                ))
+                ->values();
+        }
+
+        $calendarWeekDate = $request->validate(['week' => 'nullable|date'])['week'] ?? now()->toDateString();
+        $calendarWeekStart = Carbon::parse($calendarWeekDate)->startOfWeek(Carbon::MONDAY);
+        $calendarRoomId = $request->validate(['room_id' => 'nullable|integer|exists:resources,id'])['room_id'] ?? null;
+        $calendarResources = Resource::whereIn('type', ['room', 'lab'])->orderBy('name')->get();
+        $calendarSchedules = ClassSchedule::with(['teacher', 'resource'])
+            ->where('teacher_id', $teacher->id)
+            ->when($calendarTerm, fn ($query) => $query
+                ->where('semester', $calendarTerm->semester)
+                ->where('academic_year', $calendarTerm->academic_year))
+            ->orderBy('start_time')
+            ->get();
+        if ($calendarRoomId) {
+            $calendarResource = $calendarResources->firstWhere('id', (int) $calendarRoomId);
+            $calendarSchedules = $calendarSchedules->filter(function ($schedule) use ($calendarRoomId, $calendarResource) {
+                return (string) $schedule->resource_id === (string) $calendarRoomId
+                    || ($calendarResource && $schedule->room_name === $calendarResource->name);
+            })->values();
+        }
+        $calendarDays = WeeklyScheduleCalendar::build($calendarSchedules, $calendarWeekStart);
+
         return view('teacher.dashboard', compact(
             'teacher',
             'tab',
@@ -116,7 +168,16 @@ class TeacherDashboardController extends Controller
             'scheduleDate',
             'scheduleType',
             'scheduleResources',
-            'campusBookings'
+            'campusBookings',
+            'calendarTerm',
+            'calendarWeekStart',
+            'calendarRoomId',
+            'calendarResources',
+            'calendarDays',
+            'bookingDate',
+            'bookingStartTime',
+            'bookingEndTime',
+            'availableRoomResources'
         ));
     }
 
@@ -137,12 +198,46 @@ class TeacherDashboardController extends Controller
         ]);
 
         $teacher = $request->user();
+        $resource = !empty($data['resource_id']) ? Resource::findOrFail($data['resource_id']) : null;
 
-        if (!empty($data['resource_id'])) {
-            $resource = Resource::find($data['resource_id']);
-            if ($resource && empty($data['room_name'])) {
-                $data['room_name'] = $resource->name;
-            }
+        if ($resource && empty($data['room_name'])) {
+            $data['room_name'] = $resource->name;
+        }
+
+        $roomName = trim($data['room_name'] ?? '');
+        $normalizedSection = strtoupper(preg_replace('/\s+/', ' ', trim($data['section'])));
+        $requestedDays = new ClassSchedule(['days' => $data['days']]);
+        $overlapExists = ClassSchedule::with('resource')
+            ->where('semester', $data['semester'])
+            ->where('academic_year', $data['academic_year'])
+            ->where('start_time', '<', $data['end_time'])
+            ->where('end_time', '>', $data['start_time'])
+            ->get()
+            ->contains(function (ClassSchedule $schedule) use ($teacher, $resource, $roomName, $requestedDays, $normalizedSection) {
+                $sharesDay = collect(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+                    ->contains(fn ($day) => $requestedDays->matchesDay($day) && $schedule->matchesDay($day));
+
+                if (!$sharesDay) {
+                    return false;
+                }
+
+                $sharesTeacher = (int) $schedule->teacher_id === (int) $teacher->id;
+                $existingSection = strtoupper(preg_replace('/\s+/', ' ', trim($schedule->section)));
+                $sharesSection = $existingSection === $normalizedSection;
+                $sharesRoom = ($resource && (int) $schedule->resource_id === (int) $resource->id)
+                    || ($roomName !== '' && !in_array(strtolower($roomName), ['tba', 'to be announced'], true)
+                        && (
+                            strcasecmp((string) $schedule->room_name, $roomName) === 0
+                            || strcasecmp((string) $schedule->resource?->name, $roomName) === 0
+                        ));
+
+                return $sharesTeacher || $sharesSection || $sharesRoom;
+            });
+
+        if ($overlapExists) {
+            throw ValidationException::withMessages([
+                'start_time' => 'This class overlaps an existing schedule for the same teacher, section, or room.',
+            ]);
         }
 
         ClassSchedule::create([

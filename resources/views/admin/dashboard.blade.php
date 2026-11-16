@@ -2,10 +2,12 @@
 
 @php
   $sectionTitles = [
+    'dashboard' => 'Admin Dashboard',
     'accounts' => 'Accounts Awaiting Review',
     'bookings' => 'Space Booking Requests',
     'resources' => 'Campus Resources Management',
     'notices' => 'Broadcast Global Notice',
+    'terms' => 'Academic Term Dates',
   ];
 @endphp
 
@@ -15,12 +17,133 @@
 <div class="cs-header-banner">
   <div>
     <h1>{{ $sectionTitles[$section] }}</h1>
-    <p>Admin Workspace</p>
+    <p>{{ $section === 'dashboard' ? 'Campus overview · '.($activeTerm ? $activeTerm->semester.' · '.$activeTerm->academic_year : 'No active academic term') : 'Admin Workspace' }}</p>
   </div>
   <div>
     <span class="cs-badge cs-badge-approved" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Admin Mode Active</span>
   </div>
 </div>
+
+@if($section === 'dashboard')
+  <div class="cs-admin-stat-grid">
+    <a class="cs-admin-stat-card" href="{{ route('admin.dashboard', ['section' => 'accounts']) }}">
+      <span class="cs-admin-stat-label">Pending Accounts</span>
+      <strong>{{ $dashboardStats['pending_accounts'] }}</strong>
+      <span class="cs-admin-stat-hint">Review registration requests</span>
+    </a>
+    <div class="cs-admin-stat-card">
+      <span class="cs-admin-stat-label">Approved Students</span>
+      <strong>{{ $dashboardStats['students'] }}</strong>
+      <span class="cs-admin-stat-hint">Active student accounts</span>
+    </div>
+    <div class="cs-admin-stat-card">
+      <span class="cs-admin-stat-label">Approved Teachers</span>
+      <strong>{{ $dashboardStats['teachers'] }}</strong>
+      <span class="cs-admin-stat-hint">Active faculty accounts</span>
+    </div>
+    <a class="cs-admin-stat-card" href="{{ route('schedule.index') }}">
+      <span class="cs-admin-stat-label">Classes This Term</span>
+      <strong>{{ $dashboardStats['active_classes'] }}</strong>
+      <span class="cs-admin-stat-hint">{{ $dashboardStats['active_enrollments'] }} student enrollments</span>
+    </a>
+    <a class="cs-admin-stat-card" href="{{ route('admin.dashboard', ['section' => 'bookings']) }}">
+      <span class="cs-admin-stat-label">Pending Room Requests</span>
+      <strong>{{ $dashboardStats['pending_bookings'] }}</strong>
+      <span class="cs-admin-stat-hint">Review room requests</span>
+    </a>
+    <a class="cs-admin-stat-card" href="{{ route('admin.dashboard', ['section' => 'resources']) }}">
+      <span class="cs-admin-stat-label">Classrooms & Labs</span>
+      <strong>{{ $dashboardStats['rooms'] }}</strong>
+      <span class="cs-admin-stat-hint">Managed campus spaces</span>
+    </a>
+  </div>
+
+  <div class="cs-grid-2 cs-admin-dashboard-charts">
+    <section class="cs-panel">
+      <div class="cs-panel-header">
+        <div>
+          <h2 class="cs-panel-title">Weekly Class Distribution</h2>
+          <p class="cs-panel-subtitle">Scheduled classes by weekday for the active term</p>
+        </div>
+      </div>
+      <div class="cs-admin-bar-chart" role="img" aria-label="Weekly class distribution chart">
+        @foreach($weekdayScheduleCounts as $day => $count)
+          @php $barHeight = $count ? max(8, round(($count / $maxWeekdayScheduleCount) * 100)) : 0; @endphp
+          <div class="cs-admin-bar-column" aria-label="{{ $day }}: {{ $count }} classes">
+            <strong>{{ $count }}</strong>
+            <div class="cs-admin-bar-track">
+              <div class="cs-admin-bar-fill" style="height: {{ $barHeight }}%;"></div>
+            </div>
+            <span>{{ substr($day, 0, 3) }}</span>
+          </div>
+        @endforeach
+      </div>
+    </section>
+
+    <section class="cs-panel">
+      <div class="cs-panel-header">
+        <div>
+          <h2 class="cs-panel-title">Room Request Status</h2>
+          <p class="cs-panel-subtitle">All room requests by approval status</p>
+        </div>
+      </div>
+      @foreach(['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'] as $status => $label)
+        @php
+          $count = $bookingStatusCounts->get($status, 0);
+          $barWidth = $count ? max(3, round(($count / $maxBookingStatusCount) * 100)) : 0;
+        @endphp
+        <div class="cs-admin-status-row">
+          <div class="cs-admin-status-label">
+            <span>{{ $label }}</span>
+            <strong>{{ $count }}</strong>
+          </div>
+          <div class="cs-admin-status-track">
+            <div class="cs-admin-status-fill {{ $status }}" style="width: {{ $barWidth }}%;"></div>
+          </div>
+        </div>
+      @endforeach
+    </section>
+  </div>
+
+  <section class="cs-panel">
+    <div class="cs-panel-header">
+      <div>
+        <h2 class="cs-panel-title">Recent Room Requests</h2>
+        <p class="cs-panel-subtitle">Latest booking activity across campus</p>
+      </div>
+      <a class="cs-button cs-button-secondary cs-button-sm" href="{{ route('admin.dashboard', ['section' => 'bookings']) }}">Review Requests</a>
+    </div>
+    @if($recentBookings->isEmpty())
+      <p class="cs-calendar-empty">No room requests have been submitted yet.</p>
+    @else
+      <div class="cs-table-container">
+        <table class="cs-table cs-admin-table">
+          <thead>
+            <tr>
+              <th>Room</th>
+              <th>Requested By</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($recentBookings as $booking)
+              <tr>
+                <td><strong>{{ $booking->resource->name }}</strong></td>
+                <td>{{ $booking->user->name }}</td>
+                <td>
+                  {{ date('M j, Y', strtotime($booking->date)) }}
+                  <div class="cs-panel-subtitle">{{ date('g:i A', strtotime($booking->start_time)) }}–{{ date('g:i A', strtotime($booking->end_time)) }}</div>
+                </td>
+                <td><span class="cs-badge cs-badge-{{ $booking->status === 'approved' ? 'approved' : ($booking->status === 'rejected' ? 'danger' : 'warning') }}">{{ ucfirst($booking->status) }}</span></td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    @endif
+  </section>
+@endif
 
 @if($section === 'accounts')
   {{-- Pending User Accounts --}}
@@ -256,6 +379,86 @@
         <p style="color: var(--text-muted); text-align: center; padding: 1rem 0;">No notices published yet.</p>
       @endforelse
     </div>
+  </div>
+@endif
+
+@if($section === 'terms')
+  <div class="cs-panel">
+    <div class="cs-panel-header">
+      <div>
+        <h2 class="cs-panel-title">Configure Academic Terms</h2>
+        <p class="cs-panel-subtitle">Set the date ranges used to switch everyone's schedule automatically.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ route('admin.academic-terms.store') }}" class="cs-form-grid" style="margin-bottom: 1.5rem;">
+      @csrf
+      <div class="cs-grid-2">
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="term_semester">Semester</label>
+          <select class="cs-select" id="term_semester" name="semester" required>
+            <option value="1st Semester">1st Semester</option>
+            <option value="2nd Semester">2nd Semester</option>
+            <option value="Summer">Summer</option>
+          </select>
+        </div>
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="term_year">Academic Year</label>
+          <input class="cs-input" id="term_year" name="academic_year" placeholder="e.g. 2026-2027" required>
+        </div>
+      </div>
+      <div class="cs-grid-2">
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="term_starts_on">Starts on</label>
+          <input class="cs-input" type="date" id="term_starts_on" name="starts_on" required>
+        </div>
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="term_ends_on">Ends on</label>
+          <input class="cs-input" type="date" id="term_ends_on" name="ends_on" required>
+        </div>
+      </div>
+      <button type="submit" class="cs-button">Add Academic Term</button>
+    </form>
+
+    @if($academicTerms->isEmpty())
+      <p class="cs-calendar-empty">No term dates configured yet. The calendar currently uses the most recently added class schedule until dates are entered.</p>
+    @else
+      <div class="cs-table-container">
+        <table class="cs-table cs-admin-table">
+          <thead>
+            <tr>
+              <th>Semester</th>
+              <th>Academic Year</th>
+              <th>Starts</th>
+              <th>Ends</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($academicTerms as $term)
+              <tr>
+                <td colspan="5">
+                  <form method="POST" action="{{ route('admin.academic-terms.update', $term) }}" class="cs-term-edit-row">
+                    @csrf
+                    @method('PUT')
+                    <select class="cs-select" name="semester" aria-label="Semester" required>
+                      @foreach(['1st Semester', '2nd Semester', 'Summer'] as $semester)
+                        <option value="{{ $semester }}" {{ $term->semester === $semester ? 'selected' : '' }}>{{ $semester }}</option>
+                      @endforeach
+                    </select>
+                    <input class="cs-input" name="academic_year" aria-label="Academic year" value="{{ $term->academic_year }}" required>
+                    <input class="cs-input" type="date" name="starts_on" aria-label="Starts on" value="{{ $term->starts_on->format('Y-m-d') }}" required>
+                    <input class="cs-input" type="date" name="ends_on" aria-label="Ends on" value="{{ $term->ends_on->format('Y-m-d') }}" required>
+                    <button class="cs-button cs-button-sm" type="submit">Save</button>
+                  </form>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+      <p class="cs-panel-subtitle" style="margin-top: 1rem;">The term that includes today is active. When it ends, the next scheduled term becomes active automatically.</p>
+    @endif
   </div>
 @endif
 @endsection

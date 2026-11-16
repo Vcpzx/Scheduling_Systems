@@ -75,6 +75,11 @@
 
 {{-- TAB 1: SCHEDULE CARDS & TIMETABLE --}}
 @if($tab === 'schedule')
+  @include('components.weekly-schedule-calendar', [
+    'calendarRouteName' => 'teacher.dashboard',
+    'calendarRouteParameters' => ['tab' => 'schedule'],
+  ])
+
   <div class="cs-panel">
     <div class="cs-panel-header">
       <div>
@@ -326,42 +331,52 @@
       </div>
     </div>
 
-    <form method="POST" action="{{ route('bookings.store') }}" class="cs-form-grid">
-      @csrf
-      <div class="cs-form-group">
-        <label class="cs-form-label" for="resource_id">Select Resource / Room</label>
-        <select class="cs-select" id="resource_id" name="resource_id" required>
-          <option value="">Choose a campus room, lab, or facility</option>
-          @foreach($resources as $resource)
-            <option value="{{ $resource->id }}">{{ $resource->name }} ({{ strtoupper($resource->type) }}{{ $resource->location ? ' · '.$resource->location : '' }}{{ $resource->capacity ? ' · '.$resource->capacity.' seats' : '' }})</option>
-          @endforeach
-        </select>
-      </div>
-
+    <form method="GET" action="{{ route('teacher.dashboard') }}" class="cs-form-grid">
+      <input type="hidden" name="tab" value="room-requests">
       <div class="cs-grid-3">
         <div class="cs-form-group">
-          <label class="cs-form-label" for="date">Booking Date</label>
-          <input class="cs-input" type="date" id="date" name="date" min="{{ now()->format('Y-m-d') }}" value="{{ now()->format('Y-m-d') }}" required>
+          <label class="cs-form-label" for="booking_date">Booking Date</label>
+          <input class="cs-input" type="date" id="booking_date" name="date" min="{{ now()->format('Y-m-d') }}" value="{{ $bookingDate }}" required>
         </div>
         <div class="cs-form-group">
-          <label class="cs-form-label" for="req_start_time">Start Time</label>
-          <input class="cs-input" type="time" id="req_start_time" name="start_time" value="09:00" required>
+          <label class="cs-form-label" for="availability_start_time">Start Time</label>
+          <input class="cs-input" type="time" id="availability_start_time" name="start_time" value="{{ $bookingStartTime }}" required>
         </div>
         <div class="cs-form-group">
-          <label class="cs-form-label" for="req_end_time">End Time</label>
-          <input class="cs-input" type="time" id="req_end_time" name="end_time" value="11:00" required>
+          <label class="cs-form-label" for="availability_end_time">End Time</label>
+          <input class="cs-input" type="time" id="availability_end_time" name="end_time" value="{{ $bookingEndTime }}" required>
         </div>
       </div>
-
-      <div class="cs-form-group">
-        <label class="cs-form-label" for="purpose">Purpose / Details of Request</label>
-        <textarea class="cs-textarea" id="purpose" name="purpose" rows="4" placeholder="e.g. Midterm Examination for BSIS 3A students, projector required." required></textarea>
-      </div>
-
-      <button type="submit" class="cs-button" style="width: 100%;">
-        <span>Submit Booking Request for Admin Approval</span>
-      </button>
+      <button type="submit" class="cs-button cs-button-secondary">Check Available Rooms</button>
     </form>
+
+    <p class="cs-panel-subtitle" style="margin: 1rem 0;">Available rooms for {{ date('M j, Y', strtotime($bookingDate)) }}, {{ date('g:i A', strtotime($bookingStartTime)) }}–{{ date('g:i A', strtotime($bookingEndTime)) }}:</p>
+
+    @if($availableRoomResources->isEmpty())
+      <p class="cs-calendar-empty">No rooms are available for this date and time. Try a different time or date.</p>
+    @else
+      <form method="POST" action="{{ route('bookings.store') }}" class="cs-form-grid">
+        @csrf
+        <input type="hidden" name="date" value="{{ $bookingDate }}">
+        <input type="hidden" name="start_time" value="{{ $bookingStartTime }}">
+        <input type="hidden" name="end_time" value="{{ $bookingEndTime }}">
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="resource_id">Available Room / Resource</label>
+          <select class="cs-select" id="resource_id" name="resource_id" required>
+            @foreach($availableRoomResources as $resource)
+              <option value="{{ $resource->id }}">{{ $resource->name }} ({{ strtoupper($resource->type) }}{{ $resource->location ? ' · '.$resource->location : '' }}{{ $resource->capacity ? ' · '.$resource->capacity.' seats' : '' }})</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="cs-form-group">
+          <label class="cs-form-label" for="purpose">Purpose / Details of Request</label>
+          <textarea class="cs-textarea" id="purpose" name="purpose" rows="4" placeholder="e.g. Midterm Examination for BSIS 3A students, projector required." required></textarea>
+        </div>
+        <button type="submit" class="cs-button" style="width: 100%;">
+          <span>Submit Booking Request for Admin Approval</span>
+        </button>
+      </form>
+    @endif
   </div>
 
 {{-- TAB 4: RECENT REQUESTS --}}
